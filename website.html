@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Innovation Club — Accueil</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <!-- Remplace logo.png par ton logo -->
+        <img src="logo.png" alt="Logo Innovation Club" class="logo" />
+        <h1>Innovation Club</h1>
+      </div>
+      <nav aria-label="Navigation principale">
+        <ul class="nav-list">
+          <li><a href="#accueil">Accueil</a></li>
+          <li><a href="#onglets">Événements & Départements</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BALISE D'ACCUEIL -->
+  <main>
+    <section id="accueil" class="hero">
+      <div class="container">
+        <h2>Bienvenue à Innovation Club</h2>
+        <p class="lead">
+          Innovation est un club universitaire dédié à la créativité, la technologie et aux projets étudiants.
+          Nous rassemblons des étudiants passionnés pour concevoir, prototyper et présenter des solutions innovantes.
+        </p>
+        <p class="definition">
+          <strong>Définition :</strong> Innovation est un collectif étudiant qui promeut l’esprit d’initiative,
+          l’apprentissage pratique et la collaboration multidisciplinaire pour transformer des idées en projets concrets.
+        </p>
+      </div>
+    </section>
+
+    <!-- ONGLETS : ÉVÉNEMENTS / DÉPARTEMENTS -->
+    <section id="onglets" class="tabs-section">
+      <div class="container">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="events" aria-controls="events" aria-selected="true">Événements</button>
+          <button class="tab-btn" data-tab="departments" aria-controls="departments" aria-selected="false">Départements</button>
+        </div>
+
+        <!-- Contenu des onglets -->
+        <div class="tab-content">
+          <!-- ÉVÉNEMENTS -->
+          <div id="events" class="tab-panel" role="tabpanel" aria-hidden="false">
+            <h3>Événements à venir</h3>
+            <ul class="events-list">
+              <li>
+                <strong>Hackathon 48h</strong> — 15-17 novembre 2025<br/>
+                <small>Marathon de création d’applications et prototypes.</small>
+              </li>
+              <li>
+                <strong>Atelier IoT</strong> — 5 décembre 2025<br/>
+                <small>Initiation aux capteurs et microcontrôleurs.</small>
+              </li>
+              <li>
+                <strong>Journée Portes Ouvertes</strong> — 20 décembre 2025<br/>
+                <small>Présentation des projets étudiants et recrutement.</small>
+              </li>
+            </ul>
+          </div>
+
+          <!-- DÉPARTEMENTS -->
+          <div id="departments" class="tab-panel hidden" role="tabpanel" aria-hidden="true">
+            <h3>Nos Départements</h3>
+            <div class="departments-grid">
+              <!-- Chaque carte déclenche l'affichage du détail -->
+              <button class="dept-card" data-dept="dev">
+                <h4>Développement</h4>
+                <p>Applications & sites web</p>
+              </button>
+
+              <button class="dept-card" data-dept="robotics">
+                <h4>Robotique</h4>
+                <p>Prototypage et hardware</p>
+              </button>
+
+              <button class="dept-card" data-dept="design">
+                <h4>Design & UX</h4>
+                <p>Design d'interface et prototypage</p>
+              </button>
+
+              <button class="dept-card" data-dept="comm">
+                <h4>Communication</h4>
+                <p>Événements & relations publiques</p>
+              </button>
+            </div>
+
+            <!-- Zone de détail qui change quand on clique sur un département -->
+            <aside id="dept-detail" class="dept-detail" aria-live="polite">
+              <h4>Sélectionnez un département pour voir sa description</h4>
+              <div class="detail-content">
+                <!-- Contenu dynamique injecté par JS -->
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="contact">
+      <div class="container">
+        <h3>Contact</h3>
+        <p>Email : <a href="mailto:contact@innovationclub.example">contact@innovationclub.example</a></p>
+        <p>Adresse : Université — Bâtiment des projets étudiants</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2025 Innovation Club — Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
