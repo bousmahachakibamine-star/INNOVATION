@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Innovation — Club scientifique de l'ESGN Kolea</title>
+  <meta name="description" content="Innovation, le club scientifique de l'ESGN Kolea : nos membres, nos événements, nos activités et tous nos réseaux.">
+  <meta name="theme-color" content="#1b2370">
+  <meta property="og:title" content="Innovation — Club scientifique de l'ESGN Kolea">
+  <meta property="og:description" content="Imaginer, prototyper, innover : rejoins le club scientifique de l'ESGN Kolea.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <noscript><style>.reveal { opacity: 1 !important; transform: none !important; }</style></noscript>
+
+  <!-- ============================================================
+       BANNIÈRE HÉROS — conserve telle quelle du fichier
+       hero-logo-particles.html (particules + dévoilement du logo)
+       ============================================================ -->
+  <style>
+  :root { --navy:#1b2370; --bg:#f4f6fd; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; background: var(--bg); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .hero { position: relative; width: 100%; height: 100vh; min-height: 540px; overflow: hidden; background:
+            radial-gradient(ellipse at 50% 40%, #ffffff 0%, var(--bg) 60%, #e8ecfa 100%); }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; touch-action: manipulation; }
+  .content { position: absolute; left: 0; right: 0; bottom: 5vh; text-align: center; padding: 0 20px;
+             pointer-events: none; opacity: 0; transform: translateY(14px);
+             transition: opacity 1s ease, transform 1s ease; }
+  .content.show { opacity: 1; transform: none; }
+  .content.show .actions { pointer-events: auto; }
+  h1 { color: var(--navy); font-size: clamp(1.4rem, 3.4vw, 2.6rem); letter-spacing: .14em; text-transform: uppercase; }
+  p  { color: #4a5488; margin-top: .5em; font-size: clamp(.9rem, 1.4vw, 1.1rem); }
+  .actions { margin-top: 1.2em; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  button { font: inherit; cursor: pointer; border-radius: 999px; padding: .7em 1.6em; border: 2px solid var(--navy); transition: .2s; }
+  .primary { background: var(--navy); color: #fff; box-shadow: 0 6px 20px rgba(27,35,112,.25); }
+  .primary:hover { background: #2f4aa8; border-color: #2f4aa8; transform: translateY(-1px); }
+  .ghost { background: transparent; color: var(--navy); }
+  .ghost:hover { background: rgba(27,35,112,.08); }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Symbole du logo du club (anneau + ampoule), réutilisé dans tout le site ===== -->
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="innovGrad" x1="60" y1="60" x2="440" y2="440" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#161d66"/>
+        <stop offset="1" stop-color="#2d4fa8"/>
+      </linearGradient>
+      <mask id="innovBulbMask">
+        <rect x="0" y="0" width="500" height="500" fill="#fff"/>
+        <circle cx="250" cy="238" r="78" fill="#000"/>
+        <path d="M180 265 L320 265 L284 320 L216 320 Z" fill="#000"/>
+        <path d="M290 331 A40 34 0 0 1 210 331 Z" fill="#000"/>
+      </mask>
+      <symbol id="innovLogo" viewBox="0 0 500 500">
+        <circle cx="250" cy="250" r="147.5" fill="none" stroke="url(#innovGrad)" stroke-width="25"/>
+        <circle cx="250" cy="250" r="129" fill="url(#innovGrad)" mask="url(#innovBulbMask)"/>
+        <g fill="url(#innovGrad)">
+          <path d="M250 191 L245 201 L255 201 Z"/>
+          <rect x="244" y="205" width="12" height="20"/>
+          <rect x="238" y="225" width="24" height="9"/>
+          <path d="M245 234 L255 234 L259 300 L267 318 L233 318 L241 300 Z"/>
+          <rect x="208" y="318" width="84" height="12"/>
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- ===== En-tête fixe ===== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#hero">
+        <svg class="brand-logo" viewBox="0 0 500 500" role="img" aria-label="Logo Innovation"><use href="#innovLogo"></use></svg>
+        <span class="brand-text">
+          <span class="brand-name">Innovation</span>
+          <span class="brand-sub">Club scientifique — ESGN Kolea</span>
+        </span>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="site-nav">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+
+      <nav class="site-nav" id="site-nav" aria-label="Navigation principale">
+        <ul class="nav-list">
+          <li><a class="nav-link active" href="#hero">Accueil</a></li>
+          <li><a class="nav-link" href="#membres">Nos membres</a></li>
+          <li><a class="nav-link" href="#evenements">Événements &amp; activités</a></li>
+          <li><a class="nav-link" href="#reseaux">Nos réseaux</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ============================================================
+         BANNIÈRE HÉROS — fichier épinglé conservé tel quel
+         ============================================================ -->
+    <section class="hero" id="hero">
+      <canvas id="c"></canvas>
+
+      <!-- Avant le dévoilement : on joue avec les particules -->
+      <div class="content" id="pre">
+        <p>Survole et clique sur les particules… puis révèle ce qu'elles cachent.</p>
+        <div class="actions">
+          <button class="primary" id="reveal">✦ Dévoiler le logo</button>
+          <button class="ghost" id="replay1">↻ Rejouer</button>
+        </div>
+      </div>
+
+      <!-- Après le dévoilement -->
+      <div class="content" id="post">
+        <h1>Innovation</h1>
+        <p>Le club scientifique de l'ESGN Kolea — imaginer, prototyper, innover.</p>
+        <div class="actions">
+          <a class="primary" href="#reseaux">Rejoindre le club</a>
+          <button class="ghost" id="replay2">↻ Rejouer l'animation</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PRÉSENTATION ===== -->
+    <section id="apropos" class="section about">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">Le club</p>
+          <h2 class="section-title reveal">Qui sommes-nous&nbsp;?</h2>
+          <p class="section-lead reveal">
+            <strong>Innovation</strong> est le club scientifique de l'<strong>ESGN Kolea</strong>. Nous réunissons
+            des étudiants curieux et passionnés pour explorer les technologies, mener des projets concrets et
+            transmettre ce que nous apprenons — de la première idée au prototype.
+          </p>
+        </div>
+
+        <div class="values-grid">
+          <article class="value-card reveal">
+            <span class="value-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3 11.2V16h6v-1.8A6 6 0 0 0 12 3Z"/></svg>
+            </span>
+            <h3>Curiosité &amp; découverte</h3>
+            <p>Ateliers, veille technologique et conférences pour explorer les outils et les idées de demain.</p>
+          </article>
+
+          <article class="value-card reveal">
+            <span class="value-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="m8 6-5 6 5 6M16 6l5 6-5 6"/></svg>
+            </span>
+            <h3>Projets concrets</h3>
+            <p>On ne reste pas théoriques : on code, on fabrique des prototypes et on présente nos réalisations.</p>
+          </article>
+
+          <article class="value-card reveal">
+            <span class="value-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
+            <h3>Esprit d'équipe</h3>
+            <p>Des étudiants de toutes spécialités qui apprennent, partagent et avancent ensemble.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== NOS MEMBRES ===== -->
+    <section id="membres" class="section members">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">L'équipe</p>
+          <h2 class="section-title reveal">Nos membres</h2>
+          <p class="section-lead reveal">
+            Innovation, c'est avant tout des étudiants qui font vivre le club : un bureau qui coordonne,
+            et des membres répartis en départements complémentaires.
+          </p>
+        </div>
+
+        <h3 class="sub-title reveal">Le bureau</h3>
+        <!-- ✏️ Remplace « À compléter » par les vrais noms.
+             📸 Pour ajouter la photo d'un membre, remplace le « ? » par :
+                <img src="photos/president.jpg" alt="Photo du président"> -->
+        <div class="members-grid">
+          <article class="member-card reveal">
+            <span class="member-avatar" aria-hidden="true">?</span>
+            <span class="member-name">À compléter</span>
+            <span class="member-role">Président·e</span>
+          </article>
+          <article class="member-card reveal">
+            <span class="member-avatar" aria-hidden="true">?</span>
+            <span class="member-name">À compléter</span>
+            <span class="member-role">1er vice-président·e</span>
+          </article>
+          <article class="member-card reveal">
+            <span class="member-avatar" aria-hidden="true">?</span>
+            <span class="member-name">À compléter</span>
+            <span class="member-role">2e vice-président·e</span>
+          </article>
+          <article class="member-card reveal">
+            <span class="member-avatar" aria-hidden="true">?</span>
+            <span class="member-name">À compléter</span>
+            <span class="member-role">RE — Relation externe</span>
+          </article>
+          <article class="member-card reveal">
+            <span class="member-avatar" aria-hidden="true">?</span>
+            <span class="member-name">À compléter</span>
+            <span class="member-role">RH — Ressources humaines</span>
+          </article>
+          <article class="member-card reveal">
+            <span class="member-avatar" aria-hidden="true">?</span>
+            <span class="member-name">À compléter</span>
+            <span class="member-role">Formation</span>
+          </article>
+          <article class="member-card reveal">
+            <span class="member-avatar" aria-hidden="true">?</span>
+            <span class="member-name">À compléter</span>
+            <span class="member-role">Média</span>
+          </article>
+        </div>
+        <p class="edit-note reveal">✏️ Noms et photos se modifient dans <code>index.html</code> (cherche «&nbsp;À compléter&nbsp;»).</p>
+
+        <h3 class="sub-title sub-title-spaced reveal">Nos départements</h3>
+        <p class="dept-hint reveal">Clique sur un département pour découvrir sa mission →</p>
+        <div class="dept-grid">
+          <button type="button" class="dept-card reveal" data-dept="re" aria-haspopup="dialog">
+            <span class="dept-name">RE</span>
+            <span class="dept-sub">Relation externe</span>
+            <span class="dept-more">Découvrir →</span>
+          </button>
+          <button type="button" class="dept-card reveal" data-dept="rh" aria-haspopup="dialog">
+            <span class="dept-name">RH</span>
+            <span class="dept-sub">Ressources humaines</span>
+            <span class="dept-more">Découvrir →</span>
+          </button>
+          <button type="button" class="dept-card reveal" data-dept="media" aria-haspopup="dialog">
+            <span class="dept-name">Média</span>
+            <span class="dept-sub">Photo, vidéo &amp; contenus</span>
+            <span class="dept-more">Découvrir →</span>
+          </button>
+          <button type="button" class="dept-card reveal" data-dept="formation" aria-haspopup="dialog">
+            <span class="dept-name">Formation</span>
+            <span class="dept-sub">Ateliers &amp; partage</span>
+            <span class="dept-more">Découvrir →</span>
+          </button>
+        </div>
+
+        <div class="section-cta reveal">
+          <a class="btn" href="#reseaux">Rejoindre un département</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== NOS ÉVÉNEMENTS & ACTIVITÉS ===== -->
+    <section id="evenements" class="section events">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">Agenda</p>
+          <h2 class="section-title reveal">Nos événements &amp; activités</h2>
+          <p class="section-lead reveal">
+            Hackathons, ateliers, portes ouvertes : il se passe toujours quelque chose avec Innovation.
+          </p>
+        </div>
+
+        <h3 class="sub-title reveal">Événements à venir</h3>
+        <!-- ✏️ Dates à adapter au calendrier réel du club -->
+        <div class="events-list">
+          <article class="event-card reveal">
+            <span class="event-date" aria-hidden="true">
+              <span class="day">13–15</span>
+              <span class="month">Novembre 2026</span>
+            </span>
+            <div class="event-body">
+              <h4>Hackathon 48h</h4>
+              <p>Marathon de création d'applications et de prototypes, ouvert à tous les étudiants.</p>
+            </div>
+          </article>
+
+          <article class="event-card reveal">
+            <span class="event-date" aria-hidden="true">
+              <span class="day">05</span>
+              <span class="month">Décembre 2026</span>
+            </span>
+            <div class="event-body">
+              <h4>Atelier IoT</h4>
+              <p>Initiation aux capteurs et aux microcontrôleurs : de l'idée au petit prototype qui fonctionne.</p>
+            </div>
+          </article>
+
+          <article class="event-card reveal">
+            <span class="event-date" aria-hidden="true">
+              <span class="day">19</span>
+              <span class="month">Décembre 2026</span>
+            </span>
+            <div class="event-body">
+              <h4>Journée portes ouvertes</h4>
+              <p>Présentation des projets étudiants, démonstrations et recrutement de nouveaux membres.</p>
+            </div>
+          </article>
+        </div>
+        <p class="edit-note reveal">✏️ Les dates sont des exemples : modifie-les dans <code>index.html</code> (cherche «&nbsp;Dates à adapter&nbsp;»).</p>
+
+        <h3 class="sub-title sub-title-spaced reveal">Nos activités régulières</h3>
+        <div class="activities-grid">
+          <article class="activity-card reveal">
+            <h4>Ateliers pratiques</h4>
+            <p>Coding, électronique, design : on apprend en faisant, chaque semaine.</p>
+          </article>
+          <article class="activity-card reveal">
+            <h4>Projets collaboratifs</h4>
+            <p>Des projets menés en équipe, du cahier des charges jusqu'au prototype final.</p>
+          </article>
+          <article class="activity-card reveal">
+            <h4>Conférences &amp; témoignages</h4>
+            <p>Des intervenants du monde professionnel et étudiant pour élargir nos horizons.</p>
+          </article>
+          <article class="activity-card reveal">
+            <h4>Hackathons &amp; challenges</h4>
+            <p>Des défis chronométrés pour se dépasser, en équipe et sous pression créative.</p>
+          </article>
+          <article class="activity-card reveal">
+            <h4>Veille technologique</h4>
+            <p>Partage d'actualités, d'outils et de tendances sur nos réseaux.</p>
+          </article>
+          <article class="activity-card reveal">
+            <h4>Mentorat &amp; partage</h4>
+            <p>Les membres les plus avancés accompagnent les débutants dans leurs premiers pas.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== NOS RÉSEAUX & CONTACT ===== -->
+    <section id="reseaux" class="section social">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">Contact</p>
+          <h2 class="section-title reveal">Nos réseaux</h2>
+          <p class="section-lead reveal">
+            Suis l'actualité d'Innovation, découvre nos projets et reste en contact avec le club.
+          </p>
+        </div>
+
+        <div class="social-grid">
+          <a class="social-card reveal" data-net="instagram" href="https://www.instagram.com/innovation_esgen?utm_source=ig_web_button_share_sheet&amp;xtok=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener">
+            <span class="social-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>
+            </span>
+            <span class="social-name">Instagram</span>
+            <span class="social-handle">@innovation_esgen</span>
+          </a>
+
+          <a class="social-card reveal" data-net="tiktok" href="https://tr.ee/gFZuo5_AW-" target="_blank" rel="noopener">
+            <span class="social-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+            </span>
+            <span class="social-name">TikTok</span>
+            <span class="social-handle">Vidéos &amp; coulisses</span>
+          </a>
+
+          <a class="social-card reveal" data-net="linkedin" href="https://tr.ee/UNU7sfiDE3" target="_blank" rel="noopener">
+            <span class="social-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </span>
+            <span class="social-name">LinkedIn</span>
+            <span class="social-handle">Innovation — ESGN Kolea</span>
+          </a>
+
+          <a class="social-card reveal" data-net="facebook" href="https://tr.ee/ztxpto45_M" target="_blank" rel="noopener">
+            <span class="social-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>
+            </span>
+            <span class="social-name">Facebook</span>
+            <span class="social-handle">Actualités du club</span>
+          </a>
+
+          <a class="social-card reveal" data-net="mail" href="mailto:innovation.esgen@gmail.com">
+            <span class="social-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg>
+            </span>
+            <span class="social-name">E-mail</span>
+            <span class="social-handle">innovation.esgen@gmail.com</span>
+          </a>
+        </div>
+
+        <div class="social-cta reveal">
+          <h3>Envie de nous rejoindre&nbsp;?</h3>
+          <p>Écris-nous, viens à une réunion et découvre le club — tous les curieux sont les bienvenus.</p>
+          <a class="btn btn-light" href="mailto:innovation.esgen@gmail.com">✉ innovation.esgen@gmail.com</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== Pied de page ===== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <svg class="footer-logo" viewBox="0 0 500 500" role="img" aria-label="Logo Innovation"><use href="#innovLogo"></use></svg>
+        <div>
+          <strong>Innovation</strong>
+          <span>Club scientifique — ESGN Kolea</span>
+        </div>
+      </div>
+      <nav class="footer-nav" aria-label="Liens du pied de page">
+        <a href="#hero">Accueil</a>
+        <a href="#membres">Membres</a>
+        <a href="#evenements">Événements</a>
+        <a href="#reseaux">Réseaux</a>
+      </nav>
+      <div class="footer-social">
+        <a href="https://www.instagram.com/innovation_esgen?utm_source=ig_web_button_share_sheet&amp;xtok=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>
+        </a>
+        <a href="https://tr.ee/gFZuo5_AW-" target="_blank" rel="noopener" aria-label="TikTok">
+          <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+        </a>
+        <a href="https://tr.ee/UNU7sfiDE3" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <a href="https://tr.ee/ztxpto45_M" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg viewBox="0 0 24 24"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>
+        </a>
+        <a href="mailto:innovation.esgen@gmail.com" aria-label="E-mail">
+          <svg viewBox="0 0 24 24" class="mail-icon"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>© <span id="year">2026</span> Innovation — Club scientifique de l'ESGN Kolea. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- ===== Panneau des départements : la photo glisse de la gauche, le texte apparaît à droite ===== -->
+  <div class="dept-overlay" id="deptOverlay" hidden>
+    <div class="dept-panel" role="dialog" aria-modal="true" aria-labelledby="deptTitle">
+      <button type="button" class="dept-close" id="deptClose" aria-label="Fermer">✕</button>
+      <div class="dept-photo">
+        <!-- 📸 Photo du responsable : remplace tout ce bloc par :
+             <img class="dept-photo-img" src="photos/re.jpg" alt="Photo du responsable du département RE"> -->
+        <div class="dept-photo-placeholder">
+          <svg class="dept-photo-logo" viewBox="0 0 500 500" aria-hidden="true"><use href="#innovLogo"></use></svg>
+          <span class="dept-photo-label" id="deptPhotoLabel">RE</span>
+          <span class="dept-photo-caption">Photo du responsable</span>
+        </div>
+      </div>
+      <div class="dept-info">
+        <p class="eyebrow">Département</p>
+        <h3 id="deptTitle">RE — Relation externe</h3>
+        <p class="dept-resp">Responsable&nbsp;: <strong id="deptResp">À compléter</strong></p>
+        <p class="dept-desc" id="deptDesc"></p>
+        <a class="btn" href="#reseaux" id="deptJoin">Rejoindre ce département</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Script de la bannière héros — conservé tel quel du fichier
+       hero-logo-particles.html
+       ============================================================ -->
+  <script>
+  /* ============ RÉGLAGES ============ */
+  const CONFIG = {
+    // Chemin de ton vrai logo (PNG sur fond clair). null = logo redessiné en code.
+    LOGO_SRC: null,
+    COLORS: ['#1b2370', '#232d85', '#2f4aa8', '#4a7be0'],   // bleus des particules
+    COLOR_WEIGHTS: [0.40, 0.35, 0.20, 0.05],
+    LOGO_SCALE: 0.62,        // taille du logo (partie de la hauteur de l'écran)
+    STEP_DESKTOP: 1.5,       // densité : plus petit = plus de particules (1.5 ≈ 23 000)
+    STEP_MOBILE: 2.2,
+    PARTICLE_SIZE: 0.78,     // taille d'une particule (1 = remplit sa cellule)
+    SPRING: 14,              // vitesse de convergence
+    MOUSE_FORCE: 3500,       // répulsion au survol
+    CLICK_FORCE: 700,        // explosion au clic
+    REVEAL_DURATION: 2.4     // durée de la fusion (secondes)
+  };
+
+  /* ============ LOGO : GÉOMÉTRIE (espace 500×500) ============ */
+  const N = 500;
+  function paintBase(c, fill) {            // anneau, liseré blanc, disque, ampoule creusée
+    c.fillStyle = fill;
+    c.beginPath(); c.arc(250, 250, 160, 0, 7); c.fill();
+    c.globalCompositeOperation = 'destination-out';
+    c.beginPath(); c.arc(250, 250, 135, 0, 7); c.fill();
+    c.globalCompositeOperation = 'source-over';
+    c.beginPath(); c.arc(250, 250, 129, 0, 7); c.fill();
+    c.globalCompositeOperation = 'destination-out';
+    c.beginPath(); c.arc(250, 238, 78, 0, 7); c.fill();
+    c.beginPath(); c.moveTo(180, 265); c.lineTo(320, 265); c.lineTo(284, 320); c.lineTo(216, 320); c.closePath(); c.fill();
+    c.beginPath(); c.ellipse(250, 331, 40, 34, 0, 0, Math.PI); c.closePath(); c.fill();
+    c.globalCompositeOperation = 'source-over';
+  }
+  function paintSymbol(c, fill) {          // symbole central
+    c.fillStyle = fill;
+    c.beginPath(); c.moveTo(250, 191); c.lineTo(245, 201); c.lineTo(255, 201); c.closePath(); c.fill();
+    c.fillRect(244, 205, 12, 20);
+    c.fillRect(238, 225, 24, 9);
+    c.beginPath(); c.moveTo(245, 234); c.lineTo(255, 234); c.lineTo(259, 300); c.lineTo(267, 318);
+    c.lineTo(233, 318); c.lineTo(241, 300); c.closePath(); c.fill();
+    c.fillRect(208, 318, 84, 12);
+  }
+
+  function vectorLogoData() {
+    const mk = () => { const cv = document.createElement('canvas'); cv.width = cv.height = N; return cv.getContext('2d', { willReadFrequently: true }); };
+    const b = mk(), s = mk();
+    paintBase(b, '#000'); paintSymbol(s, '#000');
+    return { base: b.getImageData(0, 0, N, N).data, sym: s.getImageData(0, 0, N, N).data, cx: 250, cy: 250, img: null };
+  }
+
+  function imageLogoData(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const cv = document.createElement('canvas'); cv.width = cv.height = N;
+        const c = cv.getContext('2d', { willReadFrequently: true });
+        c.fillStyle = '#fff'; c.fillRect(0, 0, N, N);
+        const k = Math.min(N / img.width, N / img.height);
+        c.drawImage(img, (N - img.width * k) / 2, (N - img.height * k) / 2, img.width * k, img.height * k);
+        const id = c.getImageData(0, 0, N, N), d = id.data;
+        let sx = 0, sy = 0, n = 0;
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+          const i = (y * N + x) * 4;
+          const dark = d[i] < 140;
+          if (dark) { sx += x; sy += y; n++; }
+          d[i + 3] = dark ? 255 : 0;                // alpha = « zone sombre »
+        }
+        resolve({ base: d, sym: null, cx: sx / n, cy: sy / n, img });
+      };
+      img.onerror = reject; img.src = src;
+    });
+  }
+
+  /* Logo plein (fin de l'animation), rendu à la taille réelle de l'écran */
+  function makeSolid(px) {
+    const cv = document.createElement('canvas'); cv.width = cv.height = Math.round(px);
+    const c = cv.getContext('2d');
+    if (logoSrc.img) {                              // mode image : on garde tes vraies couleurs
+      const t = document.createElement('canvas'); t.width = t.height = N;
+      const tc = t.getContext('2d'); tc.drawImage(logoSrc.img, 0, 0, N, N);
+      c.drawImage(t, 0, 0, px, px);
+      return cv;
+    }
+    c.scale(px / N, px / N);
+    const g = c.createLinearGradient(60, 60, 440, 440);
+    g.addColorStop(0, '#161d66'); g.addColorStop(1, '#2d4fa8');
+    paintBase(c, g); paintSymbol(c, g);
+    return cv;
+  }
+
+  function sampleLogo(src, step) {
+    const pts = [], { base, sym, cx, cy } = src;
+    for (let y = step / 2; y < N; y += step) {
+      for (let x = step / 2; x < N; x += step) {
+        const i = ((y | 0) * N + (x | 0)) * 4;
+        const dist = Math.hypot(x - cx, y - cy), a = Math.atan2(y - cy, x - cx);
+        if (base[i + 3] > 128) {
+          pts.push({ x, y, d: dist, a, g: dist > 132 ? 0 : (!sym && dist < 95 ? 2 : 1) });
+        } else if (sym && sym[i + 3] > 128) {
+          pts.push({ x, y, d: dist, a, g: 2 });
+        }
+      }
+    }
+    return pts;
+  }
+
+  /* ============ MOTEUR DE PARTICULES ============ */
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const pre = document.getElementById('pre'), post = document.getElementById('post');
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let W, H, dpr, S, OX, OY, LS, logoSrc = null, solid = null;
+  let parts = [], buckets = [[], [], [], []];
+  let time = 0, last = performance.now();
+  let state = 'play';                  // 'play' → 'revealing' → 'revealed'
+  let revealT = 0;
+  const mouse = { x: -9999, y: -9999, active: false };
+
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+  const smooth = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
+
+  function pickBucket() {
+    let r = Math.random(), acc = 0;
+    for (let i = 0; i < CONFIG.COLOR_WEIGHTS.length; i++) { acc += CONFIG.COLOR_WEIGHTS[i]; if (r < acc) return i; }
+    return 0;
+  }
+
+  function build(settled) {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    LS = Math.min(W * 0.85, H * CONFIG.LOGO_SCALE);
+    S = LS / N; OX = W / 2 - LS / 2; OY = H * 0.43 - LS / 2;
+    solid = makeSolid(LS * dpr);
+
+    const step = W < 700 ? CONFIG.STEP_MOBILE : CONFIG.STEP_DESKTOP;
+    const pts = sampleLogo(logoSrc, step), cell = step * S;
+
+    parts = []; buckets = [[], [], [], []];
+    const far = Math.max(W, H);
+    for (const p of pts) {
+      let delay;                       // ordre : anneaux → disque → symbole
+      if (p.g === 0) delay = 0.2 + ((p.a + Math.PI) / (2 * Math.PI)) * 1.0;
+      else if (p.g === 1) delay = 1.0 + (1 - p.d / 130) * 0.5;
+      else delay = 1.9 + Math.max(0, (p.y - 190) / 180) * 0.6;
+      delay += Math.random() * 0.25;
+
+      const ang = Math.random() * 6.283, rad = far * (0.45 + Math.random() * 0.5);
+      const tx = OX + p.x * S, ty = OY + p.y * S;
+      const o = {
+        x: settled ? tx : W / 2 + Math.cos(ang) * rad,
+        y: settled ? ty : H / 2 + Math.sin(ang) * rad,
+        vx: settled ? 0 : -Math.sin(ang) * 140 * Math.random(),
+        vy: settled ? 0 : Math.cos(ang) * 140 * Math.random(),
+        tx, ty, delay: settled ? 0 : delay,
+        kf: 0.75 + Math.random() * 0.5, relax: 1, ph: Math.random() * 6.28,
+        dx: (Math.random() - .5) * 16, dy: (Math.random() - .5) * 16,
+        size: cell * CONFIG.PARTICLE_SIZE * (0.85 + Math.random() * 0.3),
+        full: cell * 1.35,
+        rd: (p.d / 165) * 0.9        // délai de fusion : du centre vers l'extérieur
+      };
+      parts.push(o); buckets[pickBucket()].push(o);
+    }
+    time = 0;
+  }
+
+  function showPlayUI(on) { pre.classList.toggle('show', on); }
+  function showPostUI(on) { post.classList.toggle('show', on); }
+
+  function update(dt) {
+    const revealing = state === 'revealing';
+    const k0 = CONFIG.SPRING * (revealing ? 3 : 1), damp = 2 * Math.sqrt(k0) * 0.85;
+    const mR = Math.min(W, H) * 0.13, mR2 = mR * mR, mF = CONFIG.MOUSE_FORCE * S;
+    const useMouse = mouse.active && state === 'play';
+    for (const p of parts) {
+      if (time < p.delay) { p.x += p.dx * dt; p.y += p.dy * dt; continue; }
+      if (revealing) p.relax = 1;
+      else if (p.relax < 1) p.relax = Math.min(1, p.relax + dt * 0.9);
+      const pull = k0 * p.kf * (p.relax > 0 ? p.relax * p.relax : 0);
+      let ax = (p.tx - p.x) * pull - p.vx * damp;
+      let ay = (p.ty - p.y) * pull - p.vy * damp;
+      if (useMouse) {
+        const mx = p.x - mouse.x, my = p.y - mouse.y, d2 = mx * mx + my * my;
+        if (d2 < mR2 && d2 > 0.01) {
+          const d = Math.sqrt(d2), f = Math.pow(1 - d / mR, 2) * mF;
+          ax += (mx / d) * f; ay += (my / d) * f;
+        }
+      }
+      p.vx += ax * dt; p.vy += ay * dt;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      if (state === 'play' && time > 4) { p.x += Math.sin(time * 1.4 + p.ph) * 0.05; p.y += Math.cos(time * 1.2 + p.ph) * 0.05; }
+    }
+  }
+
+  function drawParticles(alpha, growing) {
+    ctx.globalAlpha = alpha;
+    for (let b = 0; b < 4; b++) {
+      ctx.fillStyle = CONFIG.COLORS[b];
+      ctx.beginPath();
+      for (const p of buckets[b]) {
+        let s = p.size;
+        if (growing) { const g = smooth(0, 1, (revealT - p.rd) / 0.7); s = p.size + (p.full - p.size) * g; }
+        ctx.rect(p.x - s / 2, p.y - s / 2, s, s);
+      }
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    if (state === 'play') {
+      drawParticles(Math.min(1, time / 0.8 + (reduceMotion ? 1 : 0)), false);
+    } else if (state === 'revealing') {
+      const t = revealT;
+      // onde de choc
+      if (t < 1.8) {
+        ctx.strokeStyle = '#4a7be0'; ctx.lineWidth = 2 + (1 - t / 1.8) * 4;
+        ctx.globalAlpha = (1 - t / 1.8) * 0.5;
+        ctx.beginPath(); ctx.arc(W / 2, OY + LS / 2, t * LS * 0.75, 0, 7); ctx.stroke();
+      }
+      // logo plein qui apparaît sous les particules
+      ctx.globalAlpha = smooth(0.9, 1.9, t);
+      ctx.drawImage(solid, OX, OY, LS, LS);
+      drawParticles(1 - smooth(1.4, 2.1, t), true);
+    } else {
+      ctx.drawImage(solid, OX, OY, LS, LS);
+    }
+  }
+
+  function frame(now) {
+    const dt = Math.min(0.033, (now - last) / 1000); last = now;
+    time += dt;
+    if (state === 'revealing') {
+      revealT += dt;
+      if (revealT >= CONFIG.REVEAL_DURATION) { state = 'revealed'; showPostUI(true); }
+    }
+    if (state !== 'revealed') update(dt);
+    draw();
+    if (state === 'play' && time > 3.6 && !pre.classList.contains('show')) showPlayUI(true);
+    requestAnimationFrame(frame);
+  }
+
+  /* ============ INTERACTIONS ============ */
+  function pos(e) { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  canvas.addEventListener('pointermove', e => { const p = pos(e); mouse.x = p.x; mouse.y = p.y; mouse.active = true; });
+  canvas.addEventListener('pointerleave', () => { mouse.active = false; });
+  canvas.addEventListener('pointerdown', e => {
+    if (state !== 'play') return;
+    const c = pos(e), R = Math.min(W, H) * 0.55, F = CONFIG.CLICK_FORCE * S;
+    for (const p of parts) {
+      const dx = p.x - c.x, dy = p.y - c.y, d = Math.hypot(dx, dy) || 1;
+      if (d < R) {
+        const mag = (1 - d / R) * F * (0.6 + Math.random() * 0.8) + 120 * S;
+        p.vx += (dx / d) * mag - (dy / d) * mag * 0.35;
+        p.vy += (dy / d) * mag + (dx / d) * mag * 0.35;
+        p.relax = -0.15 - Math.random() * 0.35;
+      }
+    }
+  });
+
+  document.getElementById('reveal').addEventListener('click', () => {
+    if (state !== 'play') return;
+    state = 'revealing'; revealT = 0; mouse.active = false;
+    showPlayUI(false);
+  });
+  function replay() {
+    state = 'play'; revealT = 0;
+    showPlayUI(false); showPostUI(false);
+    build(false);
+  }
+  document.getElementById('replay1').addEventListener('click', replay);
+  document.getElementById('replay2').addEventListener('click', replay);
+  addEventListener('resize', () => {
+    if (state === 'revealing') { state = 'revealed'; showPostUI(true); }
+    build(true);
+  });
+
+  /* ============ DÉMARRAGE ============ */
+  (async function init() {
+    try { logoSrc = CONFIG.LOGO_SRC ? await imageLogoData(CONFIG.LOGO_SRC) : vectorLogoData(); }
+    catch (e) { console.warn('Logo image introuvable, logo vectoriel utilisé.', e); logoSrc = vectorLogoData(); }
+    build(reduceMotion);
+    requestAnimationFrame(t => { last = t; frame(t); });
+  })();
+  </script>
+
+  <!-- Script du site : menu mobile, lien actif et animations douces -->
+  <script src="script.js"></script>
+</body>
+</html>
