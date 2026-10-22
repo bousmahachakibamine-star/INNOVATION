@@ -20,6 +20,9 @@ Tout se fait dans **`index.html`** :
 - **Les événements** : chercher « Dates à adapter » et modifier les dates/descriptions.
 - **Votre vrai logo** dans l'animation du héros : déposez un fichier `logo.png` (fond clair) à la racine, puis dans la section `CONFIG` passez `LOGO_SRC: "logo.png"` (au lieu de `null`). Sinon, le logo vectoriel du club est utilisé.
 - **Les réseaux sociaux** : déjà configurés (Instagram, TikTok, LinkedIn, Facebook, e-mail).
+- **La galerie de chaque département** (photos & vidéos) : voir `gallery/README.md` — les fichiers vont dans
+  `gallery/<département>/` et se listent dans le tableau `gallery` de `script.js`. La galerie s'affiche dans
+  le panneau du département, avec visionneuse plein écran.
 
 ## Aperçu local
 

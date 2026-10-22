@@ -82,35 +82,44 @@
     revealEls.forEach(function (el) { el.classList.add('visible'); });
   }
 
-  /* ---------- Départements : panneau photo + texte ---------- */
+  /* ---------- Départements : panneau photo + texte + galerie ---------- */
+  /* Galerie : déposez les photos/vidéos du département dans gallery/<département>/
+     puis listez-les ici, par exemple :
+       { src: 'gallery/media/soiree.jpg', caption: 'Soirée partenaires' }
+       { type: 'video', src: 'gallery/media/aftermovie.mp4', caption: 'Aftermovie' }
+     (caption facultative ; type = 'image' par défaut) */
     var DEPTS = {
     re: {
       title: 'RE — Relation externe',
       label: 'RE',
       resp: 'Bousmaha Chakib Amine',
       photo: 'photos/re.jpg',
-      desc: "Le département Relation externe assure le lien entre Innovation et les autres clubs, les partenaires et les instances de l'école : invitations, collaborations et représentation du club à l'extérieur."
+      desc: "Le département Relation externe assure le lien entre Innovation et les autres clubs, les partenaires et les instances de l'école : invitations, collaborations et représentation du club à l'extérieur.",
+      gallery: []
     },
     rh: {
       title: 'RH — Ressources humaines',
       label: 'RH',
       resp: 'Zenati Aya',
       photo: 'photos/rh.jpg',
-      desc: "Le département Ressources humaines accompagne les membres, gère les recrutements et veille au bon esprit d'équipe au sein du club."
+      desc: "Le département Ressources humaines accompagne les membres, gère les recrutements et veille au bon esprit d'équipe au sein du club.",
+      gallery: []
     },
     media: {
       title: 'Média',
       label: 'MÉDIA',
       resp: 'Nait Mohamed Amani',
       photo: 'photos/media.jpg',
-      desc: "Le département Média réalise les photos, vidéos et publications du club et met en valeur nos événements sur nos réseaux sociaux."
+      desc: "Le département Média réalise les photos, vidéos et publications du club et met en valeur nos événements sur nos réseaux sociaux.",
+      gallery: []
     },
     formation: {
       title: 'Formation',
       label: 'FORM.',
       resp: 'Baha Eddine Benhaj Taher',
       photo: 'photos/formation.jpg',
-      desc: "Le département Formation organise les ateliers et l'entraide : tutoriels, sessions pratiques et accompagnement des nouveaux membres."
+      desc: "Le département Formation organise les ateliers et l'entraide : tutoriels, sessions pratiques et accompagnement des nouveaux membres.",
+      gallery: []
     }
   };
 
@@ -127,6 +136,118 @@
     var lastTrigger = null;
     var closeTimer = null;
 
+    /* ---------- Galerie du département (photos & vidéos) ---------- */
+    var galleryGrid = document.getElementById('galleryGrid');
+    var galleryEmpty = document.getElementById('galleryEmpty');
+    var galleryDeptName = document.getElementById('galleryDeptName');
+    var currentGallery = [];
+
+    function renderGallery(key) {
+      var d = DEPTS[key];
+      currentGallery = (d && d.gallery) || [];
+      if (galleryDeptName) galleryDeptName.textContent = d ? d.title : 'département';
+      if (!galleryGrid) return;
+      galleryGrid.innerHTML = '';
+      currentGallery.forEach(function (item, i) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'gallery-item';
+        btn.setAttribute('aria-label', 'Ouvrir le média ' + (i + 1) + (item.caption ? ' — ' + item.caption : ''));
+        if (item.type === 'video') {
+          var vid = document.createElement('video');
+          vid.src = item.src;
+          vid.muted = true;
+          vid.playsInline = true;
+          vid.preload = 'metadata';
+          btn.appendChild(vid);
+          var badge = document.createElement('span');
+          badge.className = 'gallery-play';
+          badge.textContent = '▶';
+          btn.appendChild(badge);
+        } else {
+          var img = document.createElement('img');
+          img.src = item.src;
+          img.alt = item.caption || '';
+          img.loading = 'lazy';
+          btn.appendChild(img);
+        }
+        btn.addEventListener('click', function () { openLightbox(i); });
+        galleryGrid.appendChild(btn);
+      });
+      if (galleryEmpty) galleryEmpty.hidden = currentGallery.length > 0;
+    }
+
+    /* ---------- Visionneuse plein écran (lightbox) ---------- */
+    var lightbox = document.getElementById('lightbox');
+    var lbMedia = document.getElementById('lightboxMedia');
+    var lbCaption = document.getElementById('lightboxCaption');
+    var lbCount = document.getElementById('lightboxCount');
+    var lbIndex = 0;
+    var lbLastFocus = null;
+
+    function renderLightbox() {
+      var item = currentGallery[lbIndex];
+      if (!item || !lbMedia) return;
+      lbMedia.innerHTML = '';
+      if (item.type === 'video') {
+        var vid = document.createElement('video');
+        vid.src = item.src;
+        vid.controls = true;
+        vid.playsInline = true;
+        vid.autoplay = true;
+        lbMedia.appendChild(vid);
+      } else {
+        var img = document.createElement('img');
+        img.src = item.src;
+        img.alt = item.caption || '';
+        lbMedia.appendChild(img);
+      }
+      if (lbCaption) lbCaption.textContent = item.caption || '';
+      if (lbCount) lbCount.textContent = (lbIndex + 1) + ' / ' + currentGallery.length;
+    }
+
+    function openLightbox(i) {
+      if (!lightbox || !currentGallery.length) return;
+      lbIndex = i;
+      lbLastFocus = document.activeElement;
+      renderLightbox();
+      lightbox.hidden = false;
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
+          lightbox.classList.add('open');
+          var closeBtn = document.getElementById('lightboxClose');
+          if (closeBtn) closeBtn.focus();
+        });
+      });
+    }
+
+    function closeLightbox() {
+      if (!lightbox || lightbox.hidden) return;
+      lightbox.classList.remove('open');
+      if (lbMedia) lbMedia.innerHTML = ''; // coupe la lecture d'une vidéo
+      window.setTimeout(function () {
+        lightbox.hidden = true;
+        if (lbLastFocus && lbLastFocus.focus) { lbLastFocus.focus(); lbLastFocus = null; }
+      }, 250);
+    }
+
+    function stepLightbox(delta) {
+      if (!currentGallery.length) return;
+      lbIndex = (lbIndex + delta + currentGallery.length) % currentGallery.length;
+      renderLightbox();
+    }
+
+    var lbCloseBtn = document.getElementById('lightboxClose');
+    var lbPrevBtn = document.getElementById('lightboxPrev');
+    var lbNextBtn = document.getElementById('lightboxNext');
+    var lbBackdrop = document.getElementById('lightboxBackdrop');
+    if (lightbox && lbCloseBtn && lbPrevBtn && lbNextBtn) {
+      lbCloseBtn.addEventListener('click', closeLightbox);
+      lbPrevBtn.addEventListener('click', function () { stepLightbox(-1); });
+      lbNextBtn.addEventListener('click', function () { stepLightbox(1); });
+      if (lbBackdrop) lbBackdrop.addEventListener('click', closeLightbox);
+    }
+
     function openDept(key, trigger) {
       var d = DEPTS[key];
       if (!d) return;
@@ -135,6 +256,7 @@
       deptDesc.textContent = d.desc;
       deptResp.textContent = d.resp;
       deptLabel.textContent = d.label;
+      renderGallery(key);
       /* Photo du responsable : affichée si le fichier existe, sinon le logo reste */
       if (deptPhoto) {
         if (deptPlaceholder) deptPlaceholder.hidden = false;
@@ -191,6 +313,13 @@
       if (e.target === overlay) closeDept(); // clic sur le fond
     });
     document.addEventListener('keydown', function (e) {
+      /* La visionneuse a la priorité sur le panneau du département */
+      if (lightbox && !lightbox.hidden) {
+        if (e.key === 'Escape' || e.key === 'Esc') { closeLightbox(); return; }
+        if (e.key === 'ArrowLeft') { stepLightbox(-1); return; }
+        if (e.key === 'ArrowRight') { stepLightbox(1); return; }
+        return;
+      }
       if ((e.key === 'Escape' || e.key === 'Esc') && !overlay.hidden) closeDept();
     });
   }

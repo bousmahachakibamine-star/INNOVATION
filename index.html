@@ -161,7 +161,7 @@
       <div class="content" id="post">
         <h1>Innovation</h1>
         <p>Le club scientifique de l'ESGN Kolea — imaginer, prototyper, innover.</p>
-        <div class="actions"><a class="btn primary" href="#reseaux">Rejoindre le club</a></div>
+        <div class="actions"><a class="btn primary" href="#apropos">Découvrez-nous</a></div>
       </div>
 
       <!-- Octobre Rose -->
@@ -285,24 +285,36 @@
         <p class="dept-hint reveal">Clique sur un département pour découvrir sa mission →</p>
         <div class="dept-grid">
           <button type="button" class="dept-card reveal" data-dept="re" aria-haspopup="dialog">
+            <span class="dept-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><path d="M9 12h6"/></svg>
+            </span>
             <span class="dept-name">RE</span>
             <span class="dept-sub">Relation externe</span>
-            <span class="dept-more">Découvrir →</span>
+            <span class="dept-more">Découvrir <span class="dept-arrow">→</span></span>
           </button>
           <button type="button" class="dept-card reveal" data-dept="rh" aria-haspopup="dialog">
+            <span class="dept-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
             <span class="dept-name">RH</span>
             <span class="dept-sub">Ressources humaines</span>
-            <span class="dept-more">Découvrir →</span>
+            <span class="dept-more">Découvrir <span class="dept-arrow">→</span></span>
           </button>
           <button type="button" class="dept-card reveal" data-dept="media" aria-haspopup="dialog">
+            <span class="dept-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </span>
             <span class="dept-name">Média</span>
             <span class="dept-sub">Photo, vidéo &amp; contenus</span>
-            <span class="dept-more">Découvrir →</span>
+            <span class="dept-more">Découvrir <span class="dept-arrow">→</span></span>
           </button>
           <button type="button" class="dept-card reveal" data-dept="formation" aria-haspopup="dialog">
+            <span class="dept-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12.5V17c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5"/><path d="M22 10v6"/></svg>
+            </span>
             <span class="dept-name">Formation</span>
             <span class="dept-sub">Ateliers &amp; partage</span>
-            <span class="dept-more">Découvrir →</span>
+            <span class="dept-more">Découvrir <span class="dept-arrow">→</span></span>
           </button>
         </div>
 
@@ -513,7 +525,33 @@
         <p class="dept-desc" id="deptDesc"></p>
         <a class="btn" href="#reseaux" id="deptJoin">Rejoindre ce département</a>
       </div>
+
+      <!-- Galerie du département : photos & vidéos ajoutées par le chef du département
+           (fichiers déposés dans gallery/<département>/ puis listés dans script.js) -->
+      <section class="dept-gallery" id="deptGallery" aria-label="Galerie du département">
+        <div class="dept-gallery-head">
+          <h4>Galerie — <span id="galleryDeptName">département</span></h4>
+          <span class="dept-gallery-tag">Photos &amp; vidéos du club</span>
+        </div>
+        <div class="gallery-grid" id="galleryGrid"></div>
+        <p class="gallery-empty" id="galleryEmpty">La galerie ouvre bientôt — les photos et vidéos arrivent&nbsp;!</p>
+      </section>
     </div>
+  </div>
+
+  <!-- ===== Visionneuse plein écran de la galerie (photos & vidéos) ===== -->
+  <div class="lightbox" id="lightbox" hidden>
+    <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+    <figure class="lightbox-stage">
+      <div class="lightbox-media" id="lightboxMedia"></div>
+      <figcaption class="lightbox-caption">
+        <span id="lightboxCaption"></span>
+        <span class="lightbox-count" id="lightboxCount"></span>
+      </figcaption>
+    </figure>
+    <button type="button" class="lightbox-btn lightbox-close" id="lightboxClose" aria-label="Fermer">✕</button>
+    <button type="button" class="lightbox-btn lightbox-prev" id="lightboxPrev" aria-label="Média précédent">‹</button>
+    <button type="button" class="lightbox-btn lightbox-next" id="lightboxNext" aria-label="Média suivant">›</button>
   </div>
 
   <!-- ============================================================
