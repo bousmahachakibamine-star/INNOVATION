@@ -83,29 +83,33 @@
   }
 
   /* ---------- Départements : panneau photo + texte ---------- */
-  var DEPTS = {
+    var DEPTS = {
     re: {
       title: 'RE — Relation externe',
       label: 'RE',
-      resp: 'À compléter',
+      resp: 'Bousmaha Chakib Amine',
+      photo: 'photos/re.jpg',
       desc: "Le département Relation externe assure le lien entre Innovation et les autres clubs, les partenaires et les instances de l'école : invitations, collaborations et représentation du club à l'extérieur."
     },
     rh: {
       title: 'RH — Ressources humaines',
       label: 'RH',
-      resp: 'À compléter',
+      resp: 'Zenati Aya',
+      photo: 'photos/rh.jpg',
       desc: "Le département Ressources humaines accompagne les membres, gère les recrutements et veille au bon esprit d'équipe au sein du club."
     },
     media: {
       title: 'Média',
       label: 'MÉDIA',
-      resp: 'À compléter',
+      resp: 'Nait Mohamed Amani',
+      photo: 'photos/media.jpg',
       desc: "Le département Média réalise les photos, vidéos et publications du club et met en valeur nos événements sur nos réseaux sociaux."
     },
     formation: {
       title: 'Formation',
       label: 'FORM.',
-      resp: 'À compléter',
+      resp: 'Baha Eddine Benhaj Taher',
+      photo: 'photos/formation.jpg',
       desc: "Le département Formation organise les ateliers et l'entraide : tutoriels, sessions pratiques et accompagnement des nouveaux membres."
     }
   };
@@ -116,6 +120,8 @@
     var deptDesc = document.getElementById('deptDesc');
     var deptResp = document.getElementById('deptResp');
     var deptLabel = document.getElementById('deptPhotoLabel');
+    var deptPhoto = document.getElementById('deptPhotoImg');
+    var deptPlaceholder = document.getElementById('deptPhotoPlaceholder');
     var closeBtn = document.getElementById('deptClose');
     var joinLink = document.getElementById('deptJoin');
     var lastTrigger = null;
@@ -129,6 +135,19 @@
       deptDesc.textContent = d.desc;
       deptResp.textContent = d.resp;
       deptLabel.textContent = d.label;
+      /* Photo du responsable : affichée si le fichier existe, sinon le logo reste */
+      if (deptPhoto) {
+        if (deptPlaceholder) deptPlaceholder.hidden = false;
+        deptPhoto.hidden = true;
+        deptPhoto.alt = 'Photo du responsable — ' + d.title;
+        if (d.photo) {
+          deptPhoto.src = d.photo;
+          if (deptPhoto.complete && deptPhoto.naturalWidth > 0) {
+            deptPhoto.hidden = false;
+            if (deptPlaceholder) deptPlaceholder.hidden = true;
+          }
+        }
+      }
       if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
       overlay.hidden = false;
       document.body.style.overflow = 'hidden'; // bloque le défilement de la page derrière
@@ -147,6 +166,18 @@
         overlay.hidden = true;
         if (lastTrigger) { lastTrigger.focus(); lastTrigger = null; }
       }, 340);
+    }
+
+    /* Si la photo du responsable n'existe pas (encore), on réaffiche le bloc logo */
+    if (deptPhoto) {
+      deptPhoto.addEventListener('error', function () {
+        deptPhoto.hidden = true;
+        if (deptPlaceholder) deptPlaceholder.hidden = false;
+      });
+      deptPhoto.addEventListener('load', function () {
+        deptPhoto.hidden = false;
+        if (deptPlaceholder) deptPlaceholder.hidden = true;
+      });
     }
 
     document.querySelectorAll('.dept-card').forEach(function (btn) {

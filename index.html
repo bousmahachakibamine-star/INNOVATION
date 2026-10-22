@@ -17,29 +17,62 @@
   <noscript><style>.reveal { opacity: 1 !important; transform: none !important; }</style></noscript>
 
   <!-- ============================================================
-       BANNIÈRE HÉROS — conserve telle quelle du fichier
-       hero-logo-particles.html (particules + dévoilement du logo)
+       BANNIÈRE HÉROS — version améliorée (hero-logo-particles (1).html)
+       interactive : nom du club, navigation entre les logos,
+       scène « Octobre Rose », bouton « Rejoindre le club » → #reseaux
        ============================================================ -->
   <style>
-  :root { --navy:#1b2370; --bg:#f4f6fd; }
-  * { box-sizing: border-box; margin: 0; }
-  html, body { height: 100%; background: var(--bg); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .hero { position: relative; width: 100%; height: 100vh; min-height: 540px; overflow: hidden; background:
-            radial-gradient(ellipse at 50% 40%, #ffffff 0%, var(--bg) 60%, #e8ecfa 100%); }
-  canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; touch-action: manipulation; }
-  .content { position: absolute; left: 0; right: 0; bottom: 5vh; text-align: center; padding: 0 20px;
-             pointer-events: none; opacity: 0; transform: translateY(14px);
-             transition: opacity 1s ease, transform 1s ease; }
-  .content.show { opacity: 1; transform: none; }
-  .content.show .actions { pointer-events: auto; }
-  h1 { color: var(--navy); font-size: clamp(1.4rem, 3.4vw, 2.6rem); letter-spacing: .14em; text-transform: uppercase; }
-  p  { color: #4a5488; margin-top: .5em; font-size: clamp(.9rem, 1.4vw, 1.1rem); }
-  .actions { margin-top: 1.2em; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  button { font: inherit; cursor: pointer; border-radius: 999px; padding: .7em 1.6em; border: 2px solid var(--navy); transition: .2s; }
-  .primary { background: var(--navy); color: #fff; box-shadow: 0 6px 20px rgba(27,35,112,.25); }
-  .primary:hover { background: #2f4aa8; border-color: #2f4aa8; transform: translateY(-1px); }
-  .ghost { background: transparent; color: var(--navy); }
-  .ghost:hover { background: rgba(27,35,112,.08); }
+  :root { --accent:#1b2370; --bg:#f4f6fd; }
+    * { box-sizing: border-box; margin: 0; }
+    html, body { height: 100%; background: var(--bg); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .hero { position: relative; width: 100%; height: 100vh; min-height: 560px; overflow: hidden; --accent:#1b2370; }
+    .hero.rose { --accent:#e0307f; }
+
+    /* Fonds : bleu, puis vague rose qui s'étend depuis le logo */
+    .bg { position: absolute; inset: 0; }
+    .bg-a { background: radial-gradient(ellipse at 50% 40%, #ffffff 0%, #f4f6fd 60%, #e8ecfa 100%); }
+    .bg-b { background: radial-gradient(ellipse at 50% 40%, #ffffff 0%, #fff0f6 55%, #ffd6e8 100%);
+            clip-path: circle(0% at 50% 40%); transition: clip-path 1.6s cubic-bezier(.65,0,.35,1) .15s; }
+    .hero.rose .bg-b { clip-path: circle(150% at 50% 40%); }
+
+    canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; touch-action: manipulation; z-index: 1; }
+
+    /* Navigation */
+    .nav { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); z-index: 3; display: flex; align-items: center; gap: 6px;
+           padding: 6px; border-radius: 999px; background: rgba(255,255,255,.72); backdrop-filter: blur(8px);
+           box-shadow: 0 4px 18px rgba(0,0,0,.08); white-space: nowrap; }
+    .nav button { font: inherit; cursor: pointer; border: 0; background: transparent; color: var(--accent); border-radius: 999px;
+                  transition: background .3s, color .3s, opacity .3s, transform .2s; }
+    .arrow { width: 34px; height: 34px; font-size: 1.3rem; line-height: 1; }
+    .arrow:hover:not(:disabled) { background: rgba(0,0,0,.06); }
+    .arrow:disabled { opacity: .25; cursor: default; }
+    .tab { padding: .5em 1.1em; font-size: .85rem; letter-spacing: .03em; }
+    .tab.active { background: var(--accent); color: #fff; }
+    .sep { width: 1px; height: 20px; background: rgba(0,0,0,.12); margin: 0 2px; }
+
+    /* Textes */
+    .content { position: absolute; left: 0; right: 0; bottom: 5vh; text-align: center; padding: 0 20px; z-index: 2;
+               pointer-events: none; opacity: 0; transform: translateY(14px); transition: opacity 1s ease, transform 1s ease; }
+    .content.show { opacity: 1; transform: none; }
+    .content.show .actions { pointer-events: auto; }
+    h1 { color: var(--accent); font-size: clamp(1.4rem, 3.4vw, 2.6rem); letter-spacing: .14em; text-transform: uppercase; }
+    .content p { color: #4a5488; margin-top: .5em; font-size: clamp(.9rem, 1.4vw, 1.1rem); }
+    .actions { margin-top: 1.2em; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn { font: inherit; cursor: pointer; border-radius: 999px; padding: .7em 1.6em; border: 2px solid var(--accent); transition: .2s; }
+    .primary { background: var(--accent); color: #fff; box-shadow: 0 6px 20px rgba(27,35,112,.25); }
+    .primary:hover { background: #2f4aa8; border-color: #2f4aa8; transform: translateY(-1px); }
+
+    /* Mots « Octobre Rose » : chaque lettre monte, ligne après ligne */
+    .words { position: absolute; left: 0; right: 0; bottom: 5vh; z-index: 2; text-align: center; pointer-events: none; }
+    .line { overflow: hidden; padding: .04em .1em .14em; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+            line-height: 1.1; font-size: clamp(1.25rem, 3.6vw, 2.3rem); }
+    .l0 { color: #f0509a; } .l1 { color: #e0307f; }
+    .l2 { color: #b81e68; font-size: clamp(1.5rem, 4.6vw, 3rem); }
+    .ch { display: inline-block; opacity: 0; transform: translateY(120%) rotate(10deg); will-change: transform; }
+    .line.on .ch { animation: rise .85s cubic-bezier(.2,.9,.25,1) forwards; animation-delay: calc(var(--i) * 42ms); }
+    @keyframes rise { 0% { opacity: 0; transform: translateY(120%) rotate(10deg); }
+                      60% { opacity: 1; }
+                      100% { opacity: 1; transform: none; } }
   </style>
 </head>
 <body>
@@ -105,26 +138,34 @@
          BANNIÈRE HÉROS — fichier épinglé conservé tel quel
          ============================================================ -->
     <section class="hero" id="hero">
+      <div class="bg bg-a"></div>
+      <div class="bg bg-b"></div>
       <canvas id="c"></canvas>
 
-      <!-- Avant le dévoilement : on joue avec les particules -->
+      <nav class="nav">
+        <button class="arrow" id="prev" aria-label="Précédent" disabled>‹</button>
+        <button class="tab active" data-i="0">Notre logo</button>
+        <button class="tab" data-i="1">Octobre Rose</button>
+        <button class="arrow" id="next" aria-label="Suivant">›</button>
+        <span class="sep"></span>
+        <button class="arrow" id="replay" aria-label="Rejouer" title="Rejouer">↻</button>
+      </nav>
+
+      <!-- Logo du club : avant le dévoilement -->
       <div class="content" id="pre">
         <p>Survole et clique sur les particules… puis révèle ce qu'elles cachent.</p>
-        <div class="actions">
-          <button class="primary" id="reveal">✦ Dévoiler le logo</button>
-          <button class="ghost" id="replay1">↻ Rejouer</button>
-        </div>
+        <div class="actions"><button class="btn primary" id="reveal">✦ Dévoiler le logo</button></div>
       </div>
 
-      <!-- Après le dévoilement -->
+      <!-- Logo du club : après le dévoilement -->
       <div class="content" id="post">
         <h1>Innovation</h1>
         <p>Le club scientifique de l'ESGN Kolea — imaginer, prototyper, innover.</p>
-        <div class="actions">
-          <a class="primary" href="#reseaux">Rejoindre le club</a>
-          <button class="ghost" id="replay2">↻ Rejouer l'animation</button>
-        </div>
+        <div class="actions"><a class="btn primary" href="#reseaux">Rejoindre le club</a></div>
       </div>
+
+      <!-- Octobre Rose -->
+      <div class="words" id="words" aria-live="polite"></div>
     </section>
 
     <!-- ===== PRÉSENTATION ===== -->
@@ -136,7 +177,7 @@
           <p class="section-lead reveal">
             <strong>Innovation</strong> est le club scientifique de l'<strong>ESGN Kolea</strong>. Nous réunissons
             des étudiants curieux et passionnés pour explorer les technologies, mener des projets concrets et
-            transmettre ce que nous apprenons — de la première idée au prototype.
+            transmettre ce que nous apprenons — de la première idée à la réalisation.
           </p>
         </div>
 
@@ -154,7 +195,7 @@
               <svg viewBox="0 0 24 24"><path d="m8 6-5 6 5 6M16 6l5 6-5 6"/></svg>
             </span>
             <h3>Projets concrets</h3>
-            <p>On ne reste pas théoriques : on code, on fabrique des prototypes et on présente nos réalisations.</p>
+            <p>On passe à l'action : on organise des événements, on monte des projets et on les mène du début à la fin.</p>
           </article>
 
           <article class="value-card reveal">
@@ -181,47 +222,64 @@
         </div>
 
         <h3 class="sub-title reveal">Le bureau</h3>
-        <!-- ✏️ Remplace « À compléter » par les vrais noms.
-             📸 Pour ajouter la photo d'un membre, remplace le « ? » par :
-                <img src="photos/president.jpg" alt="Photo du président"> -->
-        <div class="members-grid">
-          <article class="member-card reveal">
-            <span class="member-avatar" aria-hidden="true">?</span>
-            <span class="member-name">À compléter</span>
-            <span class="member-role">Président·e</span>
+<div class="bureau-ring reveal">
+          <svg class="bureau-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <polygon points="50,16 76.6,28.8 83.1,57.6 64.8,80.6 35.2,80.6 16.9,57.6 23.4,28.8"></polygon>
+          </svg>
+          <div class="bureau-center" aria-hidden="true">
+            <svg class="bureau-logo" viewBox="0 0 500 500"><use href="#innovLogo"></use></svg>
+            <span>7 responsables</span>
+          </div>
+<article class="member-card reveal at-vertex" data-member="president" style="--x:0%;--y:-34%">
+            <span class="member-photo" aria-hidden="true">
+              <img src="photos/president.jpg" alt="" onerror="this.remove()">?
+            </span>
+            <span class="member-name">Rabahi Mohamed Islam</span>
+            <span class="member-role">Président</span>
           </article>
-          <article class="member-card reveal">
-            <span class="member-avatar" aria-hidden="true">?</span>
-            <span class="member-name">À compléter</span>
-            <span class="member-role">1er vice-président·e</span>
+<article class="member-card reveal at-vertex" data-member="vp1" style="--x:26.6%;--y:-21.2%">
+            <span class="member-photo" aria-hidden="true">
+              <img src="photos/vice-presidente-1.jpg" alt="" onerror="this.remove()">?
+            </span>
+            <span class="member-name">Djemil Darine</span>
+            <span class="member-role">Vice-présidente</span>
           </article>
-          <article class="member-card reveal">
-            <span class="member-avatar" aria-hidden="true">?</span>
-            <span class="member-name">À compléter</span>
-            <span class="member-role">2e vice-président·e</span>
+<article class="member-card reveal at-vertex" data-member="vp2" style="--x:33.1%;--y:7.6%">
+            <span class="member-photo" aria-hidden="true">
+              <img src="photos/vice-presidente-2.jpg" alt="" onerror="this.remove()">?
+            </span>
+            <span class="member-name">Hamadi Ouidad</span>
+            <span class="member-role">Vice-présidente</span>
           </article>
-          <article class="member-card reveal">
-            <span class="member-avatar" aria-hidden="true">?</span>
-            <span class="member-name">À compléter</span>
+<article class="member-card reveal at-vertex" data-member="re" style="--x:14.8%;--y:30.6%">
+            <span class="member-photo" aria-hidden="true">
+              <img src="photos/re.jpg" alt="" onerror="this.remove()">?
+            </span>
+            <span class="member-name">Bousmaha Chakib Amine</span>
             <span class="member-role">RE — Relation externe</span>
           </article>
-          <article class="member-card reveal">
-            <span class="member-avatar" aria-hidden="true">?</span>
-            <span class="member-name">À compléter</span>
+<article class="member-card reveal at-vertex" data-member="rh" style="--x:-14.8%;--y:30.6%">
+            <span class="member-photo" aria-hidden="true">
+              <img src="photos/rh.jpg" alt="" onerror="this.remove()">?
+            </span>
+            <span class="member-name">Zenati Aya</span>
             <span class="member-role">RH — Ressources humaines</span>
           </article>
-          <article class="member-card reveal">
-            <span class="member-avatar" aria-hidden="true">?</span>
-            <span class="member-name">À compléter</span>
+<article class="member-card reveal at-vertex" data-member="formation" style="--x:-33.1%;--y:7.6%">
+            <span class="member-photo" aria-hidden="true">
+              <img src="photos/formation.jpg" alt="" onerror="this.remove()">?
+            </span>
+            <span class="member-name">Baha Eddine Benhaj Taher</span>
             <span class="member-role">Formation</span>
           </article>
-          <article class="member-card reveal">
-            <span class="member-avatar" aria-hidden="true">?</span>
-            <span class="member-name">À compléter</span>
+<article class="member-card reveal at-vertex" data-member="media" style="--x:-26.6%;--y:-21.2%">
+            <span class="member-photo" aria-hidden="true">
+              <img src="photos/media.jpg" alt="" onerror="this.remove()">?
+            </span>
+            <span class="member-name">Nait Mohamed Amani</span>
             <span class="member-role">Média</span>
           </article>
         </div>
-        <p class="edit-note reveal">✏️ Noms et photos se modifient dans <code>index.html</code> (cherche «&nbsp;À compléter&nbsp;»).</p>
 
         <h3 class="sub-title sub-title-spaced reveal">Nos départements</h3>
         <p class="dept-hint reveal">Clique sur un département pour découvrir sa mission →</p>
@@ -261,21 +319,20 @@
           <p class="eyebrow reveal">Agenda</p>
           <h2 class="section-title reveal">Nos événements &amp; activités</h2>
           <p class="section-lead reveal">
-            Hackathons, ateliers, portes ouvertes : il se passe toujours quelque chose avec Innovation.
+            Formations, workshops et rencontres interactives : il se passe toujours quelque chose avec Innovation.
           </p>
         </div>
 
         <h3 class="sub-title reveal">Événements à venir</h3>
-        <!-- ✏️ Dates à adapter au calendrier réel du club -->
         <div class="events-list">
           <article class="event-card reveal">
             <span class="event-date" aria-hidden="true">
-              <span class="day">13–15</span>
+              <span class="day">14</span>
               <span class="month">Novembre 2026</span>
             </span>
             <div class="event-body">
-              <h4>Hackathon 48h</h4>
-              <p>Marathon de création d'applications et de prototypes, ouvert à tous les étudiants.</p>
+              <h4>Workshop : de l'idée au projet business</h4>
+              <p>Atelier pratique en petit groupe pour transformer une idée en projet viable, avec un mentor.</p>
             </div>
           </article>
 
@@ -285,8 +342,8 @@
               <span class="month">Décembre 2026</span>
             </span>
             <div class="event-body">
-              <h4>Atelier IoT</h4>
-              <p>Initiation aux capteurs et aux microcontrôleurs : de l'idée au petit prototype qui fonctionne.</p>
+              <h4>Formation : communication &amp; réseaux sociaux</h4>
+              <p>Créer du contenu qui marque, soigner l'image d'un projet et animer les réseaux comme un pro.</p>
             </div>
           </article>
 
@@ -296,30 +353,29 @@
               <span class="month">Décembre 2026</span>
             </span>
             <div class="event-body">
-              <h4>Journée portes ouvertes</h4>
-              <p>Présentation des projets étudiants, démonstrations et recrutement de nouveaux membres.</p>
+              <h4>Rencontre interactive : pitch &amp; networking</h4>
+              <p>Présenter ses projets devant un jury et échanger avec des intervenants du monde professionnel.</p>
             </div>
           </article>
         </div>
-        <p class="edit-note reveal">✏️ Les dates sont des exemples : modifie-les dans <code>index.html</code> (cherche «&nbsp;Dates à adapter&nbsp;»).</p>
 
         <h3 class="sub-title sub-title-spaced reveal">Nos activités régulières</h3>
         <div class="activities-grid">
           <article class="activity-card reveal">
             <h4>Ateliers pratiques</h4>
-            <p>Coding, électronique, design : on apprend en faisant, chaque semaine.</p>
+            <p>Communication, business, organisation : on apprend en faisant, chaque semaine.</p>
           </article>
           <article class="activity-card reveal">
             <h4>Projets collaboratifs</h4>
-            <p>Des projets menés en équipe, du cahier des charges jusqu'au prototype final.</p>
+            <p>Des projets menés en équipe, de l'idée jusqu'à la réalisation.</p>
           </article>
           <article class="activity-card reveal">
             <h4>Conférences &amp; témoignages</h4>
             <p>Des intervenants du monde professionnel et étudiant pour élargir nos horizons.</p>
           </article>
           <article class="activity-card reveal">
-            <h4>Hackathons &amp; challenges</h4>
-            <p>Des défis chronométrés pour se dépasser, en équipe et sous pression créative.</p>
+            <h4>Pitchs &amp; challenges</h4>
+            <p>Des défis oratoires et entrepreneuriaux, en équipe, pour se dépasser.</p>
           </article>
           <article class="activity-card reveal">
             <h4>Veille technologique</h4>
@@ -440,9 +496,11 @@
     <div class="dept-panel" role="dialog" aria-modal="true" aria-labelledby="deptTitle">
       <button type="button" class="dept-close" id="deptClose" aria-label="Fermer">✕</button>
       <div class="dept-photo">
-        <!-- 📸 Photo du responsable : remplace tout ce bloc par :
-             <img class="dept-photo-img" src="photos/re.jpg" alt="Photo du responsable du département RE"> -->
-        <div class="dept-photo-placeholder">
+        <!-- 📸 Photo du responsable : photos/re.jpg, photos/rh.jpg, photos/formation.jpg, photos/media.jpg
+             (choisie automatiquement selon le département cliqué ; si le fichier manque,
+             le bloc logo ci-dessous reste affiché). -->
+        <img class="dept-photo-img" id="deptPhotoImg" alt="">
+        <div class="dept-photo-placeholder" id="deptPhotoPlaceholder">
           <svg class="dept-photo-logo" viewBox="0 0 500 500" aria-hidden="true"><use href="#innovLogo"></use></svg>
           <span class="dept-photo-label" id="deptPhotoLabel">RE</span>
           <span class="dept-photo-caption">Photo du responsable</span>
@@ -459,29 +517,37 @@
   </div>
 
   <!-- ============================================================
-       Script de la bannière héros — conservé tel quel du fichier
-       hero-logo-particles.html
+       Script de la bannière héros — version améliorée
+       (hero-logo-particles (1).html) : deux scènes + transition
        ============================================================ -->
   <script>
   /* ============ RÉGLAGES ============ */
   const CONFIG = {
-    // Chemin de ton vrai logo (PNG sur fond clair). null = logo redessiné en code.
-    LOGO_SRC: null,
-    COLORS: ['#1b2370', '#232d85', '#2f4aa8', '#4a7be0'],   // bleus des particules
+    LOGO_SRC: null,          // chemin du PNG du logo du club (null = logo redessiné en code)
+    LOGO_SRC_ROSE: null,     // idem pour le logo Octobre Rose
+    WORDS: ['Sensibilisons', 'Parlons-en', 'Dépistons-nous'],
     COLOR_WEIGHTS: [0.40, 0.35, 0.20, 0.05],
-    LOGO_SCALE: 0.62,        // taille du logo (partie de la hauteur de l'écran)
-    STEP_DESKTOP: 1.5,       // densité : plus petit = plus de particules (1.5 ≈ 23 000)
+    LOGO_SCALE: 0.62,        // taille du logo du club (part de la hauteur)
+    LOGO_SCALE_ROSE: 0.5,    // taille du logo rose (plus petit pour laisser la place aux mots)
+    STEP_DESKTOP: 1.5,       // densité (plus petit = plus de particules)
     STEP_MOBILE: 2.2,
-    PARTICLE_SIZE: 0.78,     // taille d'une particule (1 = remplit sa cellule)
-    SPRING: 14,              // vitesse de convergence
-    MOUSE_FORCE: 3500,       // répulsion au survol
-    CLICK_FORCE: 700,        // explosion au clic
-    REVEAL_DURATION: 2.4     // durée de la fusion (secondes)
+    PARTICLE_SIZE: 0.78,
+    SPRING: 14,
+    MOUSE_FORCE: 3500,
+    CLICK_FORCE: 700,
+    REVEAL_DURATION: 2.4,
+    SWITCH_DURATION: 3.6     // durée de la transition entre deux logos
   };
+  // 4 couleurs « principales » + 4 couleurs « accent » (ruban)
+  const BLUE = ['#1b2370', '#232d85', '#2f4aa8', '#4a7be0'];
+  const PALETTES = [
+    BLUE.concat(BLUE),
+    ['#f0509a', '#f55fa6', '#ff6fb0', '#ff8cc0'].concat(['#f784b8', '#fa9ec9', '#ffb7d6', '#e85a9f'])
+  ];
 
-  /* ============ LOGO : GÉOMÉTRIE (espace 500×500) ============ */
+  /* ============ LOGOS : GÉOMÉTRIE (espace 500×500) ============ */
   const N = 500;
-  function paintBase(c, fill) {            // anneau, liseré blanc, disque, ampoule creusée
+  function paintBase(c, fill) {
     c.fillStyle = fill;
     c.beginPath(); c.arc(250, 250, 160, 0, 7); c.fill();
     c.globalCompositeOperation = 'destination-out';
@@ -494,7 +560,7 @@
     c.beginPath(); c.ellipse(250, 331, 40, 34, 0, 0, Math.PI); c.closePath(); c.fill();
     c.globalCompositeOperation = 'source-over';
   }
-  function paintSymbol(c, fill) {          // symbole central
+  function paintSymbol(c, fill) {
     c.fillStyle = fill;
     c.beginPath(); c.moveTo(250, 191); c.lineTo(245, 201); c.lineTo(255, 201); c.closePath(); c.fill();
     c.fillRect(244, 205, 12, 20);
@@ -503,12 +569,24 @@
     c.lineTo(233, 318); c.lineTo(241, 300); c.closePath(); c.fill();
     c.fillRect(208, 318, 84, 12);
   }
+  function paintRibbon(c, fill) {          // ruban rose : boucle en haut à gauche, jambes qui se croisent
+    c.strokeStyle = fill; c.lineWidth = 11; c.lineCap = 'round'; c.lineJoin = 'round';
+    c.beginPath(); c.moveTo(300, 273);
+    c.bezierCurveTo(275, 292, 252, 301, 232, 292);
+    c.bezierCurveTo(205, 280, 172, 250, 170, 222);
+    c.bezierCurveTo(168, 200, 195, 192, 205, 206);
+    c.stroke();
+    c.beginPath(); c.moveTo(205, 206);
+    c.bezierCurveTo(214, 224, 228, 262, 240, 298);
+    c.stroke();
+  }
 
-  function vectorLogoData() {
+  function vectorLogoData(withRibbon) {
     const mk = () => { const cv = document.createElement('canvas'); cv.width = cv.height = N; return cv.getContext('2d', { willReadFrequently: true }); };
-    const b = mk(), s = mk();
-    paintBase(b, '#000'); paintSymbol(s, '#000');
-    return { base: b.getImageData(0, 0, N, N).data, sym: s.getImageData(0, 0, N, N).data, cx: 250, cy: 250, img: null };
+    const b = mk(), s = mk(), r = withRibbon ? mk() : null;
+    paintBase(b, '#000'); paintSymbol(s, '#000'); if (r) paintRibbon(r, '#000');
+    return { base: b.getImageData(0, 0, N, N).data, sym: s.getImageData(0, 0, N, N).data,
+             rib: r ? r.getImageData(0, 0, N, N).data : null, cx: 250, cy: 250, img: null };
   }
 
   function imageLogoData(src) {
@@ -520,30 +598,23 @@
         c.fillStyle = '#fff'; c.fillRect(0, 0, N, N);
         const k = Math.min(N / img.width, N / img.height);
         c.drawImage(img, (N - img.width * k) / 2, (N - img.height * k) / 2, img.width * k, img.height * k);
-        const id = c.getImageData(0, 0, N, N), d = id.data;
+        const d = c.getImageData(0, 0, N, N).data;
         let sx = 0, sy = 0, n = 0;
         for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-          const i = (y * N + x) * 4;
-          const dark = d[i] < 140;
+          const i = (y * N + x) * 4, dark = d[i + 1] < 190;   // tout ce qui n'est pas blanc
           if (dark) { sx += x; sy += y; n++; }
-          d[i + 3] = dark ? 255 : 0;                // alpha = « zone sombre »
+          d[i + 3] = dark ? 255 : 0;
         }
-        resolve({ base: d, sym: null, cx: sx / n, cy: sy / n, img });
+        resolve({ base: d, sym: null, rib: null, cx: sx / n, cy: sy / n, img });
       };
       img.onerror = reject; img.src = src;
     });
   }
 
-  /* Logo plein (fin de l'animation), rendu à la taille réelle de l'écran */
-  function makeSolid(px) {
+  function makeSolid(src, px) {            // logo plein du club (fin du dévoilement)
     const cv = document.createElement('canvas'); cv.width = cv.height = Math.round(px);
     const c = cv.getContext('2d');
-    if (logoSrc.img) {                              // mode image : on garde tes vraies couleurs
-      const t = document.createElement('canvas'); t.width = t.height = N;
-      const tc = t.getContext('2d'); tc.drawImage(logoSrc.img, 0, 0, N, N);
-      c.drawImage(t, 0, 0, px, px);
-      return cv;
-    }
+    if (src.img) { c.drawImage(src.img, 0, 0, px, px); return cv; }
     c.scale(px / N, px / N);
     const g = c.createLinearGradient(60, 60, 440, 440);
     g.addColorStop(0, '#161d66'); g.addColorStop(1, '#2d4fa8');
@@ -552,36 +623,47 @@
   }
 
   function sampleLogo(src, step) {
-    const pts = [], { base, sym, cx, cy } = src;
+    const pts = [], { base, sym, rib, cx, cy } = src;
     for (let y = step / 2; y < N; y += step) {
       for (let x = step / 2; x < N; x += step) {
         const i = ((y | 0) * N + (x | 0)) * 4;
         const dist = Math.hypot(x - cx, y - cy), a = Math.atan2(y - cy, x - cx);
-        if (base[i + 3] > 128) {
-          pts.push({ x, y, d: dist, a, g: dist > 132 ? 0 : (!sym && dist < 95 ? 2 : 1) });
-        } else if (sym && sym[i + 3] > 128) {
-          pts.push({ x, y, d: dist, a, g: 2 });
-        }
+        if (rib && rib[i + 3] > 128) pts.push({ x, y, d: dist, a, g: 3 });
+        else if (base[i + 3] > 128) pts.push({ x, y, d: dist, a, g: dist > 132 ? 0 : (!sym && dist < 95 ? 2 : 1) });
+        else if (sym && sym[i + 3] > 128) pts.push({ x, y, d: dist, a, g: 2 });
       }
     }
     return pts;
   }
 
-  /* ============ MOTEUR DE PARTICULES ============ */
+  /* ============ ÉTAT ============ */
+  const hero = document.getElementById('hero');
   const canvas = document.getElementById('c');
   const ctx = canvas.getContext('2d');
   const pre = document.getElementById('pre'), post = document.getElementById('post');
+  const wordsEl = document.getElementById('words');
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  let W, H, dpr, S, OX, OY, LS, logoSrc = null, solid = null;
-  let parts = [], buckets = [[], [], [], []];
+  let W, H, dpr, S, OX, OY, LS, CX, CY, solid = null, logos = [];
+  let parts = [], buckets = Array.from({ length: 8 }, () => []);
   let time = 0, last = performance.now();
-  let state = 'play';                  // 'play' → 'revealing' → 'revealed'
-  let revealT = 0;
+  let state = 'play';                  // play | revealing | revealed | switching
+  let sceneIdx = 0, toIdx = 0, revealT = 0, transT = 0, retargeted = false, fromRevealed = false, fuse = 0;
   const mouse = { x: -9999, y: -9999, active: false };
 
   const clamp01 = v => Math.max(0, Math.min(1, v));
   const smooth = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
+  const hex2rgb = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+
+  /* Couleurs (mélange bleu → rose pendant la transition) */
+  let palFrom, palTo, mix = 1, cols = [];
+  function setPalette(idx) { palFrom = palTo = PALETTES[idx].map(hex2rgb); mix = 1; }
+  function updateColors() {
+    for (let i = 0; i < 8; i++) {
+      const a = palFrom[i], b = palTo[i];
+      cols[i] = `rgb(${(a[0] + (b[0] - a[0]) * mix) | 0},${(a[1] + (b[1] - a[1]) * mix) | 0},${(a[2] + (b[2] - a[2]) * mix) | 0})`;
+    }
+  }
 
   function pickBucket() {
     let r = Math.random(), acc = 0;
@@ -589,57 +671,82 @@
     return 0;
   }
 
-  function build(settled) {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+  /* ============ CONSTRUCTION DES PARTICULES ============ */
+  function layout(idx) {
     W = canvas.clientWidth; H = canvas.clientHeight;
-    canvas.width = W * dpr; canvas.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const sc = idx === 0 ? CONFIG.LOGO_SCALE : CONFIG.LOGO_SCALE_ROSE, cy = idx === 0 ? 0.43 : 0.37;
+    LS = Math.min(W * 0.85, H * sc); S = LS / N;
+    OX = W / 2 - LS / 2; OY = H * cy - LS / 2; CX = W / 2; CY = H * cy;
+  }
 
-    LS = Math.min(W * 0.85, H * CONFIG.LOGO_SCALE);
-    S = LS / N; OX = W / 2 - LS / 2; OY = H * 0.43 - LS / 2;
-    solid = makeSolid(LS * dpr);
-
+  function targetsFor(idx) {
+    layout(idx);
+    solid = idx === 0 ? makeSolid(logos[0], LS * dpr) : null;
     const step = W < 700 ? CONFIG.STEP_MOBILE : CONFIG.STEP_DESKTOP;
-    const pts = sampleLogo(logoSrc, step), cell = step * S;
-
-    parts = []; buckets = [[], [], [], []];
-    const far = Math.max(W, H);
-    for (const p of pts) {
-      let delay;                       // ordre : anneaux → disque → symbole
+    const pts = sampleLogo(logos[idx], step), cell = step * S;
+    return pts.map(p => {
+      let delay;                       // ordre : anneaux → disque → symbole → ruban
       if (p.g === 0) delay = 0.2 + ((p.a + Math.PI) / (2 * Math.PI)) * 1.0;
       else if (p.g === 1) delay = 1.0 + (1 - p.d / 130) * 0.5;
-      else delay = 1.9 + Math.max(0, (p.y - 190) / 180) * 0.6;
+      else if (p.g === 2) delay = 1.9 + Math.max(0, (p.y - 190) / 180) * 0.6;
+      else delay = 2.2 + Math.max(0, (p.x - 165) / 140) * 0.6;
       delay += Math.random() * 0.25;
+      return { tx: OX + p.x * S, ty: OY + p.y * S, delay,
+               b: (p.g === 3 ? 4 : 0) + pickBucket(),
+               size: cell * CONFIG.PARTICLE_SIZE * (0.85 + Math.random() * 0.3),
+               full: cell * 1.35, rd: (p.d / 165) * 0.9 };
+    });
+  }
 
+  function build(settled, idx) {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = canvas.clientWidth * dpr; canvas.height = canvas.clientHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const tg = targetsFor(idx), far = Math.max(W, H);
+    parts = []; buckets = Array.from({ length: 8 }, () => []);
+    for (const t of tg) {
       const ang = Math.random() * 6.283, rad = far * (0.45 + Math.random() * 0.5);
-      const tx = OX + p.x * S, ty = OY + p.y * S;
       const o = {
-        x: settled ? tx : W / 2 + Math.cos(ang) * rad,
-        y: settled ? ty : H / 2 + Math.sin(ang) * rad,
-        vx: settled ? 0 : -Math.sin(ang) * 140 * Math.random(),
-        vy: settled ? 0 : Math.cos(ang) * 140 * Math.random(),
-        tx, ty, delay: settled ? 0 : delay,
+        x: settled ? t.tx : W / 2 + Math.cos(ang) * rad, y: settled ? t.ty : H / 2 + Math.sin(ang) * rad,
+        vx: settled ? 0 : -Math.sin(ang) * 140 * Math.random(), vy: settled ? 0 : Math.cos(ang) * 140 * Math.random(),
+        tx: t.tx, ty: t.ty, delay: settled ? 0 : t.delay, b: t.b,
         kf: 0.75 + Math.random() * 0.5, relax: 1, ph: Math.random() * 6.28,
         dx: (Math.random() - .5) * 16, dy: (Math.random() - .5) * 16,
-        size: cell * CONFIG.PARTICLE_SIZE * (0.85 + Math.random() * 0.3),
-        full: cell * 1.35,
-        rd: (p.d / 165) * 0.9        // délai de fusion : du centre vers l'extérieur
+        size: t.size, full: t.full, rd: t.rd
       };
-      parts.push(o); buckets[pickBucket()].push(o);
+      parts.push(o); buckets[o.b].push(o);
     }
     time = 0;
   }
 
-  function showPlayUI(on) { pre.classList.toggle('show', on); }
-  function showPostUI(on) { post.classList.toggle('show', on); }
+  /* Réaffecte les mêmes particules vers un autre logo (sans les recréer) */
+  function retarget(idx) {
+    const tg = targetsFor(idx);
+    for (let i = tg.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [tg[i], tg[j]] = [tg[j], tg[i]]; }
+    while (parts.length > tg.length) parts.pop();
+    while (parts.length < tg.length) {
+      const s = parts[(Math.random() * parts.length) | 0];
+      parts.push({ ...s, x: s.x + (Math.random() - .5) * 30, y: s.y + (Math.random() - .5) * 30 });
+    }
+    buckets = Array.from({ length: 8 }, () => []);
+    parts.forEach((p, i) => {
+      const t = tg[i];
+      Object.assign(p, { tx: t.tx, ty: t.ty, size: t.size, full: t.full, rd: t.rd, b: t.b, delay: 0 });
+      p.relax = -t.delay * 0.6 * 0.9;   // plus le délai est grand, plus la particule attend avant de revenir
+      buckets[p.b].push(p);
+    });
+  }
 
+  /* ============ BOUCLE ============ */
   function update(dt) {
-    const revealing = state === 'revealing';
-    const k0 = CONFIG.SPRING * (revealing ? 3 : 1), damp = 2 * Math.sqrt(k0) * 0.85;
+    const sw = state === 'switching', revealing = state === 'revealing';
+    const k0 = CONFIG.SPRING * (revealing ? 3 : 1);
+    let damp = 2 * Math.sqrt(k0) * 0.85;
+    if (sw && !retargeted) damp = 1.8;                          // explosion : peu de frein
     const mR = Math.min(W, H) * 0.13, mR2 = mR * mR, mF = CONFIG.MOUSE_FORCE * S;
     const useMouse = mouse.active && state === 'play';
     for (const p of parts) {
-      if (time < p.delay) { p.x += p.dx * dt; p.y += p.dy * dt; continue; }
+      if (!sw && time < p.delay) { p.x += p.dx * dt; p.y += p.dy * dt; continue; }
       if (revealing) p.relax = 1;
       else if (p.relax < 1) p.relax = Math.min(1, p.relax + dt * 0.9);
       const pull = k0 * p.kf * (p.relax > 0 ? p.relax * p.relax : 0);
@@ -658,39 +765,46 @@
     }
   }
 
-  function drawParticles(alpha, growing) {
+  function sizeOf(p) {
+    let g = 0;
+    if (state === 'revealing') g = smooth(0, 1, (revealT - p.rd) / 0.7);
+    else if (fuse > 0) g = fuse;
+    return p.size + (p.full - p.size) * g;
+  }
+
+  function drawParticles(alpha) {
     ctx.globalAlpha = alpha;
-    for (let b = 0; b < 4; b++) {
-      ctx.fillStyle = CONFIG.COLORS[b];
-      ctx.beginPath();
-      for (const p of buckets[b]) {
-        let s = p.size;
-        if (growing) { const g = smooth(0, 1, (revealT - p.rd) / 0.7); s = p.size + (p.full - p.size) * g; }
-        ctx.rect(p.x - s / 2, p.y - s / 2, s, s);
-      }
+    const grow = state === 'revealing' || fuse > 0;
+    for (let b = 0; b < 8; b++) {
+      const list = buckets[b]; if (!list.length) continue;
+      ctx.fillStyle = cols[b]; ctx.beginPath();
+      for (const p of list) { const s = grow ? sizeOf(p) : p.size; ctx.rect(p.x - s / 2, p.y - s / 2, s, s); }
       ctx.fill();
     }
     ctx.globalAlpha = 1;
   }
 
+  function ring(t, dur, r0, color) {
+    if (t >= dur) return;
+    ctx.strokeStyle = color; ctx.lineWidth = 2 + (1 - t / dur) * 4; ctx.globalAlpha = (1 - t / dur) * 0.5;
+    ctx.beginPath(); ctx.arc(CX, CY, t * r0, 0, 7); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+
   function draw() {
     ctx.clearRect(0, 0, W, H);
     if (state === 'play') {
-      drawParticles(Math.min(1, time / 0.8 + (reduceMotion ? 1 : 0)), false);
+      drawParticles(Math.min(1, time / 0.8 + (reduceMotion ? 1 : 0)));
     } else if (state === 'revealing') {
-      const t = revealT;
-      // onde de choc
-      if (t < 1.8) {
-        ctx.strokeStyle = '#4a7be0'; ctx.lineWidth = 2 + (1 - t / 1.8) * 4;
-        ctx.globalAlpha = (1 - t / 1.8) * 0.5;
-        ctx.beginPath(); ctx.arc(W / 2, OY + LS / 2, t * LS * 0.75, 0, 7); ctx.stroke();
-      }
-      // logo plein qui apparaît sous les particules
-      ctx.globalAlpha = smooth(0.9, 1.9, t);
+      ring(revealT, 1.8, LS * 0.75, cols[2]);
+      ctx.globalAlpha = smooth(0.9, 1.9, revealT);
+      ctx.drawImage(solid, OX, OY, LS, LS); ctx.globalAlpha = 1;
+      drawParticles(1 - smooth(1.4, 2.1, revealT));
+    } else if (state === 'revealed') {
       ctx.drawImage(solid, OX, OY, LS, LS);
-      drawParticles(1 - smooth(1.4, 2.1, t), true);
-    } else {
-      ctx.drawImage(solid, OX, OY, LS, LS);
+    } else {                           // switching
+      if (fromRevealed && solid && transT < 0.3) { ctx.globalAlpha = 1 - transT / 0.3; ctx.drawImage(solid, OX, OY, LS, LS); ctx.globalAlpha = 1; }
+      if (!retargeted) ring(transT, 1.4, LS * 1.1, cols[2]);
+      drawParticles(1);
     }
   }
 
@@ -699,13 +813,74 @@
     time += dt;
     if (state === 'revealing') {
       revealT += dt;
-      if (revealT >= CONFIG.REVEAL_DURATION) { state = 'revealed'; showPostUI(true); }
+      if (revealT >= CONFIG.REVEAL_DURATION) { state = 'revealed'; post.classList.add('show'); updateNav(); }
+    } else if (state === 'switching') {
+      transT += dt;
+      mix = smooth(0.1, 0.95, transT);
+      fuse = fromRevealed ? 1 - smooth(0, 0.5, transT) : 0;
+      if (!retargeted && transT >= 1.0) { retarget(toIdx); retargeted = true; }
+      if (transT >= CONFIG.SWITCH_DURATION) finishSwitch();
     }
+    updateColors();
     if (state !== 'revealed') update(dt);
     draw();
-    if (state === 'play' && time > 3.6 && !pre.classList.contains('show')) showPlayUI(true);
+    if (state === 'play' && sceneIdx === 0 && time > 3.6 && !pre.classList.contains('show')) pre.classList.add('show');
     requestAnimationFrame(frame);
   }
+
+  /* ============ NAVIGATION ENTRE LES LOGOS ============ */
+  const prevBtn = document.getElementById('prev'), nextBtn = document.getElementById('next');
+  const tabs = [...document.querySelectorAll('.tab')];
+  function updateNav() {
+    const busy = state === 'switching' || state === 'revealing';
+    prevBtn.disabled = busy || sceneIdx === 0;
+    nextBtn.disabled = busy || sceneIdx === logos.length - 1;
+    tabs.forEach((t, i) => t.classList.toggle('active', i === (state === 'switching' ? toIdx : sceneIdx)));
+  }
+
+  let wordTimers = [];
+  function clearWords() { wordTimers.forEach(clearTimeout); wordTimers = []; wordsEl.querySelectorAll('.line').forEach(l => l.classList.remove('on')); }
+  function pulse() {                   // petite onde dans le logo à chaque mot
+    for (const p of parts) {
+      const dx = p.x - CX, dy = p.y - CY, d = Math.hypot(dx, dy) || 1, m = (110 + Math.random() * 110) * S;
+      p.vx += (dx / d) * m; p.vy += (dy / d) * m;
+    }
+  }
+  function scheduleWords(startMs) {
+    clearWords();
+    wordsEl.querySelectorAll('.line').forEach((l, i) =>
+      wordTimers.push(setTimeout(() => { l.classList.add('on'); if (state === 'play') pulse(); }, startMs + i * 800)));
+  }
+
+  function startSwitch(to) {
+    if (state !== 'play' && state !== 'revealed') return;
+    if (to === sceneIdx || to < 0 || to >= logos.length) return;
+    fromRevealed = state === 'revealed';
+    clearWords(); pre.classList.remove('show'); post.classList.remove('show');
+    toIdx = to; state = 'switching'; transT = 0; retargeted = false; mouse.active = false;
+    palFrom = PALETTES[sceneIdx].map(hex2rgb); palTo = PALETTES[to].map(hex2rgb); mix = 0;
+    fuse = fromRevealed ? 1 : 0;
+    hero.classList.toggle('rose', to === 1);          // la vague rose se répand
+    for (const p of parts) {                          // explosion depuis le centre du logo
+      const dx = p.x - CX, dy = p.y - CY, d = Math.hypot(dx, dy) || 1, m = (450 + Math.random() * 850) * S;
+      p.vx = (dx / d) * m - (dy / d) * m * 0.4; p.vy = (dy / d) * m + (dx / d) * m * 0.4;
+      p.relax = -9; p.delay = 0;
+    }
+    if (to === 1) scheduleWords(3300);
+    updateNav();
+  }
+  function finishSwitch() {
+    sceneIdx = toIdx; state = 'play'; setPalette(sceneIdx); fuse = 0; retargeted = true;
+    updateNav();
+  }
+  const go = d => startSwitch(sceneIdx + d);
+  prevBtn.addEventListener('click', () => go(-1));
+  nextBtn.addEventListener('click', () => go(1));
+  tabs.forEach(t => t.addEventListener('click', () => startSwitch(+t.dataset.i)));
+  addEventListener('keydown', e => {
+    if (hero.getBoundingClientRect().bottom < 60) return;   // héros hors écran : flèches normales
+    if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1);
+  });
 
   /* ============ INTERACTIONS ============ */
   function pos(e) { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
@@ -726,27 +901,37 @@
   });
 
   document.getElementById('reveal').addEventListener('click', () => {
-    if (state !== 'play') return;
+    if (state !== 'play' || sceneIdx !== 0) return;
     state = 'revealing'; revealT = 0; mouse.active = false;
-    showPlayUI(false);
+    pre.classList.remove('show'); updateNav();
   });
   function replay() {
-    state = 'play'; revealT = 0;
-    showPlayUI(false); showPostUI(false);
-    build(false);
+    if (state === 'switching' || state === 'revealing') return;
+    clearWords(); state = 'play'; revealT = 0; fuse = 0;
+    pre.classList.remove('show'); post.classList.remove('show');
+    setPalette(sceneIdx); build(false, sceneIdx);
+    if (sceneIdx === 1) scheduleWords(3000);
+    updateNav();
   }
-  document.getElementById('replay1').addEventListener('click', replay);
-  document.getElementById('replay2').addEventListener('click', replay);
+  document.getElementById('replay').addEventListener('click', replay);
   addEventListener('resize', () => {
-    if (state === 'revealing') { state = 'revealed'; showPostUI(true); }
-    build(true);
+    if (state === 'switching') { sceneIdx = toIdx; state = 'play'; setPalette(sceneIdx); fuse = 0; }
+    if (state === 'revealing') { state = 'revealed'; post.classList.add('show'); }
+    build(true, sceneIdx); updateNav();
   });
 
   /* ============ DÉMARRAGE ============ */
   (async function init() {
-    try { logoSrc = CONFIG.LOGO_SRC ? await imageLogoData(CONFIG.LOGO_SRC) : vectorLogoData(); }
-    catch (e) { console.warn('Logo image introuvable, logo vectoriel utilisé.', e); logoSrc = vectorLogoData(); }
-    build(reduceMotion);
+    // mots, lettre par lettre
+    CONFIG.WORDS.forEach((w, li) => {
+      const d = document.createElement('div'); d.className = 'line l' + li; d.setAttribute('aria-label', w);
+      [...w].forEach((ch, i) => { const s = document.createElement('span'); s.className = 'ch'; s.style.setProperty('--i', i); s.textContent = ch; s.setAttribute('aria-hidden', 'true'); d.appendChild(s); });
+      wordsEl.appendChild(d);
+    });
+    const load = async (src, ribbon) => { try { return src ? await imageLogoData(src) : vectorLogoData(ribbon); }
+                                           catch (e) { console.warn('Image introuvable, logo vectoriel utilisé.', e); return vectorLogoData(ribbon); } };
+    logos = [await load(CONFIG.LOGO_SRC, false), await load(CONFIG.LOGO_SRC_ROSE, true)];
+    setPalette(0); build(reduceMotion, 0); updateNav();
     requestAnimationFrame(t => { last = t; frame(t); });
   })();
   </script>

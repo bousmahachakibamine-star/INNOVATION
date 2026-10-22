@@ -330,6 +330,31 @@ main { position: relative; }
   object-fit: cover;
   border-radius: 50%;
 }
+/* Photo du membre (dossier photos/) — « ? » visible si le fichier manque */
+.member-photo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 178px;
+  aspect-ratio: 4 / 5;
+  margin: 0 auto 16px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--navy), var(--blue-light));
+  color: #fff;
+  font-family: "Poppins", "Segoe UI", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.7rem;
+}
+.member-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+}
 .member-name {
   display: block;
   font-family: "Poppins", "Segoe UI", system-ui, sans-serif;
@@ -713,6 +738,7 @@ main { position: relative; }
   display: grid;
   place-items: center;
 }
+.dept-photo-placeholder[hidden] { display: none; }
 .dept-photo-placeholder {
   display: flex;
   flex-direction: column;
@@ -736,12 +762,15 @@ main { position: relative; }
   color: var(--text);
 }
 .dept-photo-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  min-height: 360px;
   height: 100%;
   object-fit: cover;
+  object-position: center 20%;
   display: block;
 }
+.dept-photo-img[hidden] { display: none; }
 .dept-info {
   padding: 46px 36px 40px;
 }
@@ -848,9 +877,235 @@ button:focus-visible {
     grid-template-columns: 1fr;
     max-height: 86vh;
   }
-  .dept-photo { min-height: 250px; }
-  .dept-photo-img { min-height: 250px; }
+  .dept-photo { min-height: 280px; }
   .dept-info { padding: 26px 22px 30px; }
   .dept-info h3 { font-size: 1.3rem; }
   .dept-overlay.open .dept-info { animation-delay: .2s; }
+}
+/* ============================================================
+   HEPTAGONE DU BUREAU + ANIMATIONS GLOBALES
+   ============================================================ */
+
+/* ---------- Bureau : 7 responsables disposés en heptagone ---------- */
+.bureau-ring {
+  position: relative;
+  width: min(940px, 100%);
+  margin: 20px auto 0;
+  aspect-ratio: 1;
+}
+.bureau-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.bureau-lines polygon {
+  fill: rgba(74, 123, 224, .05);
+  stroke: rgba(27, 35, 112, .3);
+  stroke-width: 1.5;
+  stroke-dasharray: 7 8;
+  vector-effect: non-scaling-stroke;
+  animation: ringDash 22s linear infinite;
+}
+@keyframes ringDash { to { stroke-dashoffset: -30; } }
+
+.bureau-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+  pointer-events: none;
+}
+.bureau-logo {
+  width: 96px;
+  height: 96px;
+  animation: bureauFloat 5s ease-in-out infinite;
+}
+.bureau-center span {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+@keyframes bureauFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-9px); }
+}
+
+/* Carte positionnée sur un sommet : --x / --y viennent du HTML */
+.member-card.at-vertex {
+  position: absolute;
+  left: calc(50% + var(--x));
+  top: calc(50% + var(--y));
+  width: 176px;
+  padding: 22px 14px;
+  --ry: 0px;
+  transform: translate(-50%, -50%) translateY(var(--ry));
+  transition: opacity .7s ease, transform .5s cubic-bezier(.22, 1, .36, 1), box-shadow .35s;
+}
+.member-card.at-vertex.reveal { --ry: 26px; }
+.member-card.at-vertex.reveal.visible { --ry: 0px; }
+.member-card.at-vertex:hover,
+.member-card.at-vertex.reveal.visible:hover {
+  --ry: -9px;
+  box-shadow: var(--shadow-hover);
+}
+.member-card.at-vertex .member-photo {
+  max-width: 136px;
+  clip-path: polygon(50% 0%, 89.1% 18.8%, 98.7% 61.1%, 71.7% 95.1%, 28.3% 95.1%, 1.3% 61.1%, 10.9% 18.8%);
+}
+.member-card.at-vertex .member-name { font-size: .97rem; line-height: 1.3; }
+.member-card.at-vertex .member-role { font-size: .8rem; }
+
+/* Photos : léger zoom au survol de la carte */
+.member-photo img { transition: transform .55s cubic-bezier(.22, 1, .36, 1); }
+.member-card:hover .member-photo img { transform: scale(1.07); }
+
+/* ---------- Boutons : éclat lumineux au survol, enfoncement au clic ---------- */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: "";
+  position: absolute;
+  top: -25%;
+  left: -80%;
+  width: 45%;
+  height: 150%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .45), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.btn:hover::after { animation: btnShine .65s ease forwards; }
+@keyframes btnShine { to { left: 140%; } }
+.btn:active { transform: translateY(0) scale(.97); }
+/* Le bouton clair des sections garde sa bordure blanche malgré la règle .btn du héros */
+.section .btn-light { border-color: #fff; }
+.section .btn-light:hover { border-color: var(--bg); }
+
+/* ---------- Boutons départements (RE, RH, Média, Formation) ---------- */
+.dept-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform .35s cubic-bezier(.2, .9, .3, 1.25), box-shadow .35s, border-color .3s;
+}
+.dept-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: linear-gradient(120deg, rgba(74, 123, 224, .14), rgba(27, 35, 112, .05) 55%, transparent);
+  transition: opacity .4s ease;
+  pointer-events: none;
+}
+.dept-card > span { position: relative; z-index: 1; }
+.dept-card:hover {
+  transform: translateY(-7px) scale(1.02);
+  box-shadow: var(--shadow-hover);
+  border-left-color: var(--navy);
+}
+.dept-card:hover::before { opacity: 1; }
+.dept-card:active { transform: translateY(-2px) scale(.99); }
+.dept-name {
+  display: inline-block;
+  transition: transform .3s ease, color .3s ease;
+}
+.dept-card:hover .dept-name { transform: translateX(6px); color: var(--blue); }
+.dept-card:hover .dept-more { transform: translateX(9px); }
+
+/* ---------- Cartes : ressort au survol ---------- */
+.value-card, .activity-card, .social-card, .event-card {
+  transition: transform .35s cubic-bezier(.2, .9, .3, 1.25), box-shadow .35s, border-color .3s;
+}
+.value-card:hover, .activity-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); }
+.social-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); }
+.event-card:hover { transform: translateX(8px); box-shadow: var(--shadow-hover); }
+.value-icon { transition: transform .45s cubic-bezier(.34, 1.56, .64, 1); }
+.value-card:hover .value-icon { transform: scale(1.1) rotate(-7deg); }
+.event-date { transition: transform .4s cubic-bezier(.34, 1.56, .64, 1); }
+.event-card:hover .event-date { transform: scale(1.07) rotate(-3deg); }
+.social-icon { transition: transform .45s cubic-bezier(.34, 1.56, .64, 1); }
+.social-card:hover .social-icon { transform: scale(1.13) rotate(-7deg); }
+
+/* ---------- Navigation du site ---------- */
+.nav-link { transition: background .25s, color .25s, box-shadow .25s, transform .25s; }
+.nav-link:hover { transform: translateY(-1px); }
+.nav-toggle:hover .nav-toggle-bar { background: var(--blue); }
+
+/* ---------- Navigation de la bannière héros (sous l'en-tête fixe) ---------- */
+.hero .nav { top: calc(var(--header-h) + 8px); }
+.hero .nav button { transition: background .3s, color .3s, opacity .3s, transform .25s; }
+.hero .nav button:hover:not(:disabled) { transform: translateY(-1px) scale(1.07); }
+.hero .nav .tab:not(.active):hover { background: rgba(27, 35, 112, .08); }
+
+/* ---------- Bannière réseaux animée ---------- */
+.social-cta {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(115deg, var(--navy) 0%, var(--blue) 25%, var(--navy) 50%, var(--blue-light) 75%, var(--navy) 100%);
+  background-size: 260% 260%;
+  animation: ctaFlow 14s ease infinite;
+}
+@keyframes ctaFlow {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+.social-cta::before, .social-cta::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, .14), rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+}
+.social-cta::before { width: 320px; height: 320px; top: -130px; left: -90px; animation: orbFloat 9s ease-in-out infinite; }
+.social-cta::after  { width: 280px; height: 280px; bottom: -120px; right: -80px; animation: orbFloat 12s ease-in-out infinite reverse; }
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(30px, 22px) scale(1.12); }
+}
+.social-cta > * { position: relative; z-index: 1; }
+
+/* ---------- Pied de page ---------- */
+.footer-nav a { display: inline-block; transition: color .25s, transform .25s; }
+.footer-nav a:hover { transform: translateY(-2px); }
+
+/* ---------- Responsive : heptagone → grille 2 colonnes ---------- */
+@media (max-width: 900px) {
+  .bureau-ring {
+    aspect-ratio: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 8px;
+  }
+  .bureau-lines, .bureau-center { display: none; }
+  .member-card.at-vertex {
+    position: static;
+    width: auto;
+    padding: 24px 14px;
+    transform: translateY(var(--ry));
+  }
+  .member-card.at-vertex .member-photo { max-width: 150px; }
+  .member-card[data-member="media"] {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: 300px;
+    justify-self: center;
+  }
+}
+
+/* ---------- Accessibilité : mouvement réduit ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }

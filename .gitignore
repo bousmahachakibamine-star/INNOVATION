@@ -1,3 +1,6 @@
 # Dossier local d'aperçu et d'outillage (ne pas publier)
 .preview/
 /freebuff-sites-build/
+
+# Captures d'écran de vérification (ne pas publier)
+artifacts/
