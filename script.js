@@ -352,7 +352,6 @@
     var deptPhoto = document.getElementById('deptPhotoImg');
     var deptPlaceholder = document.getElementById('deptPhotoPlaceholder');
     var closeBtn = document.getElementById('deptClose');
-    var joinLink = document.getElementById('deptJoin');
     var lastTrigger = null;
     var closeTimer = null;
 
@@ -440,7 +439,6 @@
       });
     });
     closeBtn.addEventListener('click', closeDept);
-    joinLink.addEventListener('click', closeDept);
     overlay.addEventListener('click', function (e) {
       if (e.target === overlay) closeDept(); // clic sur le fond
     });

@@ -238,7 +238,7 @@ main { position: relative; }
   color: var(--navy);
 }
 
-/* Liens du héros transformés en boutons (« Rejoindre le club ») */
+/* Liens du héros transformés en boutons */
 .content .actions a.primary,
 .content .actions a.ghost {
   display: inline-block;

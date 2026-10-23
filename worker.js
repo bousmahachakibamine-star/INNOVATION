@@ -136,8 +136,9 @@ export default {
       const ip = request.headers.get('cf-connecting-ip') || 'inconnu';
 
       if (url.pathname === '/api/admin/login' && request.method === 'POST') {
-        if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD || !env.SESSION_SECRET) {
-          return json({ erreur: 'Administration pas encore configurée : identifiants à définir dans les secrets du site.' }, { status: 503 });
+        if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD ||
+            typeof env.SESSION_SECRET !== 'string' || env.SESSION_SECRET.length < 32) {
+          return json({ erreur: 'Configuration d’administration manquante : vérifiez les secrets et la longueur de SESSION_SECRET (32 caractères minimum).' }, { status: 503 });
         }
         if (await tropDessais(env.DB, ip)) return json({ erreur: 'Trop de tentatives, réessayez plus tard.' }, { status: 429 });
         let corps = {};
