@@ -1,45 +1,37 @@
-# Galerie des départements 📸🎬
+# Galerie du site 📸🎬
 
-Chaque département (RE, RH, Média, Formation) a sa propre galerie, visible **dans son
-panneau** sur le site (clic sur la carte du département → en bas du panneau).
+La galerie vit dans une **section dédiée** du site (`#galerie`), plus dans les panneaux
+des départements. Elle affiche tous les médias du club dans un espace unique :
+
+- **Une grille stylée** — toutes les photos et vidéos, avec légende et badge « vidéo ».
+- **Deux rubans infinis** — les vidéos défilent en boucle (sens inversé sur la 2ᵉ rangée),
+  en lecture automatique, coupées au survol.
+- **Une visionneuse plein écran** — clic sur une vignette, flèches ← → pour naviguer,
+  Échap pour fermer.
 
 ## Ajouter des photos ou des vidéos
 
-1. **Déposez les fichiers** dans le dossier du département concerné :
-
-   | Dossier | Département |
-   |---|---|
-   | `gallery/re/` | Relation externe |
-   | `gallery/rh/` | Ressources humaines |
-   | `gallery/media/` | Média |
-   | `gallery/formation/` | Formation |
-
-   Conseils :
+1. **Déposez le fichier** dans `gallery/media/` :
    - Photos : JPG ou PNG, **max ~2 Mo** (redimensionnez en 1600 px de large si besoin).
-   - Vidéos : MP4 (H.264), **max ~5 Mo**, format paysage 16:9 ou portrait 9:16.
-   - Noms de fichiers simples, sans accents ni espaces : `soiree-partenaires.jpg`,
-     `aftermovie.mp4`.
+     Les HEIC d'iPhone doivent d'abord être convertis en JPG.
+   - Vidéos : MP4 **H.264** (lisible partout), **max ~5 Mo**, 16:9 ou 9:16.
+   - Noms simples, sans accents ni espaces : `soiree-2026.jpg`, `aftermovie.mp4`.
 
-2. **Listez chaque fichier** dans `script.js`, dans le tableau `gallery` du
-   département correspondant :
+2. **Ajoutez une entrée** dans `script.js`, dans le tableau `SITE_MEDIA` :
 
    ```js
-   media: {
-     title: 'Média',
-     …
-     gallery: [
-       { src: 'gallery/media/soiree-partenaires.jpg', caption: 'Soirée partenaires' },
-       { type: 'video', src: 'gallery/media/aftermovie.mp4', caption: 'Aftermovie 2026' }
-     ]
-   },
+   { src: 'gallery/media/soiree-2026.jpg', caption: 'Soirée partenaires 2026' },
+   { type: 'video', src: 'gallery/media/aftermovie.mp4', caption: 'Aftermovie 2026',
+     poster: 'gallery/media/poster-aftermovie.jpg' },
    ```
 
-   - `type: 'video'` uniquement pour les vidéos (sinon c'est une photo par défaut).
-   - `caption` (légende) facultative.
+   - `type: 'video'` uniquement pour les vidéos (sinon c'est une photo).
+   - `caption` : légende affichée sous la vignette et dans la visionneuse.
+   - `poster` (facultatif) : image d'affichage de la vidéo avant lecture. Sans poster,
+     la première image de la vidéo sert d'aperçu.
 
-3. Ouvrez le site : la vignette apparaît automatiquement dans la galerie du
-   département, avec visionneuse plein écran (clic → flèches ← → pour naviguer,
-   Échap pour fermer).
+C'est tout : la vignette apparaît dans la grille, et les vidéos sont **automatiquement
+ajoutées aux rubans infinis** (elles alternent entre les deux rangées).
 
 > Astuce : vous pouvez aussi me renvoyer directement les fichiers (photos/vidéos) —
-> je les place dans le bon dossier et je m'occupe de la mise en page.
+> je les convertis si besoin, je place le poster et je m'occupe de la mise en page.

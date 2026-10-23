@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Administration — Innovation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1b2370; --blue: #2f4aa8; --light-blue: #4a7be0;
+    --bg: #f4f6fd; --text: #3a3f5c; --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font: 1rem/1.6 system-ui, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; padding: 32px 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1, h2, h3 { font-family: "Poppins", system-ui, sans-serif; color: var(--navy); line-height: 1.25; }
+  .wrap { width: min(760px, 100%); margin: 0 auto; display: grid; gap: 22px; }
+
+  .card {
+    background: #fff; border-radius: var(--radius); padding: 26px 24px;
+    box-shadow: 0 14px 40px rgba(27, 35, 112, .08);
+  }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .top p { font-size: .92rem; }
+  .badge {
+    display: inline-block; background: rgba(74, 123, 224, .12); color: var(--blue);
+    font-weight: 600; font-size: .8rem; border-radius: 999px; padding: 4px 12px; margin-bottom: 10px;
+  }
+
+  label { display: block; font-weight: 600; color: var(--navy); font-size: .9rem; margin: 14px 0 6px; }
+  input, textarea {
+    width: 100%; border: 1.5px solid rgba(27, 35, 112, .16); border-radius: 12px;
+    padding: 11px 14px; font: inherit; color: var(--text); background: #fff;
+  }
+  input:focus, textarea:focus { outline: none; border-color: var(--light-blue); }
+  textarea { min-height: 88px; resize: vertical; }
+
+  .btn {
+    display: inline-block; border: 0; cursor: pointer; text-decoration: none; text-align: center;
+    background: var(--navy); color: #fff; font: 600 .95rem "Poppins", system-ui, sans-serif;
+    border-radius: 12px; padding: 12px 22px; transition: transform .15s, background .2s;
+  }
+  .btn:hover { background: var(--blue); }
+  .btn:active { transform: scale(.98); }
+  .btn.ghost { background: transparent; color: var(--blue); border: 1.5px solid rgba(27, 35, 112, .25); }
+  .btn.danger { background: #b3261e; }
+  .btn.small { padding: 8px 14px; font-size: .85rem; border-radius: 10px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; }
+
+  .erreur {
+    display: none; margin-top: 14px; padding: 11px 14px; border-radius: 12px;
+    background: rgba(179, 38, 30, .08); color: #b3261e; font-size: .92rem; font-weight: 600;
+  }
+  .erreur.on { display: block; }
+  .succes {
+    display: none; margin-top: 14px; padding: 11px 14px; border-radius: 12px;
+    background: rgba(29, 138, 84, .1); color: #1d8a54; font-size: .92rem; font-weight: 600;
+  }
+  .succes.on { display: block; }
+
+  .liste { display: grid; gap: 14px; margin-top: 18px; }
+  .ev {
+    border: 1.5px solid rgba(27, 35, 112, .1); border-radius: 14px; padding: 16px;
+    display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center;
+  }
+  .ev .date {
+    background: var(--navy); color: #fff; border-radius: 12px; text-align: center; padding: 8px 4px;
+  }
+  .ev .date .j { display: block; font: 700 1.3rem "Poppins", sans-serif; }
+  .ev .date .m { display: block; font-size: .62rem; opacity: .85; }
+  .ev h3 { font-size: 1rem; margin-bottom: 3px; }
+  .ev p { font-size: .86rem; }
+  .ev .actions { display: flex; gap: 8px; }
+  .ev form { display: contents; }
+
+  .form-grid { display: grid; grid-template-columns: 110px 1fr; gap: 0 14px; }
+  .form-grid .large { grid-column: 1 / -1; }
+  .vide { text-align: center; color: #7a7f99; padding: 26px 10px; font-size: .93rem; }
+
+  @media (max-width: 560px) {
+    .ev { grid-template-columns: 56px 1fr; }
+    .ev .actions { grid-column: 1 / -1; justify-content: flex-end; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== Connexion ===== -->
+  <section class="card" id="vueConnexion">
+    <span class="badge">Espace réservé</span>
+    <h1>Administration du site</h1>
+    <p style="margin-top:8px">Connecte-toi pour gérer les événements du club.</p>
+    <form id="formConnexion">
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" autocomplete="username" required>
+      <label for="password">Mot de passe</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <div class="row"><button class="btn" type="submit">Se connecter</button>
+        <a class="btn ghost" href="/">← Retour au site</a></div>
+      <p class="erreur" id="errConnexion"></p>
+    </form>
+  </section>
+
+  <!-- ===== Tableau de bord ===== -->
+  <section class="card" id="vueAdmin" hidden>
+    <div class="top">
+      <div>
+        <span class="badge">Club Innovation</span>
+        <h1>Événements du site</h1>
+        <p>Ces événements s'affichent directement sur la page du club.</p>
+      </div>
+      <div class="row" style="margin:0">
+        <button class="btn small" id="btnAjouter" type="button">Ajouter un événement</button>
+        <a class="btn ghost small" href="/" target="_blank" rel="noopener">Voir le site</a>
+        <button class="btn ghost small" id="btnDeconnexion" type="button">Déconnexion</button>
+      </div>
+    </div>
+
+    <div class="liste" id="liste"><p class="vide">Chargement…</p></div>
+    <p class="erreur" id="errListe"></p>
+  </section>
+
+  <!-- ===== Ajout / modification ===== -->
+  <section class="card" id="vueFormulaire" hidden>
+    <h2 id="titreFormulaire">Ajouter un événement</h2>
+    <form id="formEvenement">
+      <div class="form-grid">
+        <div><label for="jour">Jour</label><input id="jour" placeholder="14" maxlength="2" required></div>
+        <div><label for="mois">Mois &amp; année</label><input id="mois" placeholder="Novembre 2026" maxlength="30" required></div>
+        <div class="large"><label for="titre">Titre</label><input id="titre" maxlength="140" required></div>
+        <div class="large"><label for="desc">Description</label><textarea id="desc" maxlength="400"></textarea></div>
+      </div>
+      <div class="row">
+        <button class="btn" type="submit" id="btnEnregistrer">Enregistrer</button>
+        <button class="btn ghost" type="button" id="btnAnnuler">Annuler</button>
+      </div>
+      <p class="erreur" id="errForm"></p>
+    </form>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var liste = document.getElementById('liste');
+  var vueConnexion = document.getElementById('vueConnexion');
+  var vueAdmin = document.getElementById('vueAdmin');
+  var vueForm = document.getElementById('vueFormulaire');
+  var errConnexion = document.getElementById('errConnexion');
+  var errListe = document.getElementById('errListe');
+  var errForm = document.getElementById('errForm');
+  var evenements = [];
+  var editionId = null;
+
+  function msg(el, texte) { el.textContent = texte || ''; el.classList.toggle('on', !!texte); }
+
+  function api(chemin, options) {
+    return fetch(chemin, Object.assign({ headers: { 'content-type': 'application/json' } }, options || {}))
+      .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.erreur || 'Erreur'); return d; }); });
+  }
+
+  /* ---------- Connexion ---------- */
+  document.getElementById('formConnexion').addEventListener('submit', function (e) {
+    e.preventDefault();
+    msg(errConnexion, '');
+    api('/api/admin/login', { method: 'POST', body: JSON.stringify({
+      email: document.getElementById('email').value.trim(),
+      password: document.getElementById('password').value
+    }) }).then(function () {
+      document.getElementById('password').value = '';
+      afficherAdmin();
+    }).catch(function (err) { msg(errConnexion, err.message); });
+  });
+
+  document.getElementById('btnDeconnexion').addEventListener('click', function () {
+    api('/api/admin/logout', { method: 'POST' }).then(function () { location.reload(); }).catch(function () { location.reload(); });
+  });
+  document.getElementById('btnAjouter').addEventListener('click', function () { ouvrirFormulaire(null); });
+
+  /* ---------- Liste ---------- */
+  function rang(ev) { return String(ev.day || '').padStart(2, '0') + String(ev.month || ''); }
+
+  function afficherListe() {
+    if (!evenements.length) {
+      liste.innerHTML = '<p class="vide">Aucun événement pour le moment — ajoute-en un ci-dessous.</p>';
+      return;
+    }
+    liste.textContent = '';
+    evenements.forEach(function (ev) {
+      var carte = document.createElement('div');
+      carte.className = 'ev';
+      var date = document.createElement('div');
+      date.className = 'date';
+      var j = document.createElement('span'); j.className = 'j'; j.textContent = ev.day || '—';
+      var m = document.createElement('span'); m.className = 'm'; m.textContent = ev.month || '';
+      date.appendChild(j); date.appendChild(m);
+      var corps = document.createElement('div');
+      var h = document.createElement('h3'); h.textContent = ev.title || '';
+      var p = document.createElement('p'); p.textContent = ev.desc || '';
+      corps.appendChild(h); corps.appendChild(p);
+      var actions = document.createElement('div'); actions.className = 'actions';
+      var bMod = document.createElement('button');
+      bMod.type = 'button'; bMod.className = 'btn ghost small'; bMod.textContent = 'Modifier';
+      bMod.addEventListener('click', function () { ouvrirFormulaire(ev); });
+      var bSup = document.createElement('button');
+      bSup.type = 'button'; bSup.className = 'btn danger small'; bSup.textContent = 'Supprimer';
+      bSup.addEventListener('click', function () {
+        if (!window.confirm('Supprimer « ' + (ev.title || 'cet événement') + ' » ?')) return;
+        api('/api/admin/events/' + encodeURIComponent(ev.id), { method: 'DELETE' })
+          .then(chargerListe)
+          .catch(function (err) { msg(errListe, err.message); });
+      });
+      actions.appendChild(bMod); actions.appendChild(bSup);
+      carte.appendChild(date); carte.appendChild(corps); carte.appendChild(actions);
+      liste.appendChild(carte);
+    });
+  }
+
+  function chargerListe() {
+    msg(errListe, '');
+    return api('/api/events').then(function (data) {
+      evenements = Array.isArray(data) ? data : [];
+      afficherListe();
+    }).catch(function (err) { msg(errListe, err.message || 'Impossible de charger les événements.'); });
+  }
+
+  /* ---------- Ajout / modification ---------- */
+  function ouvrirFormulaire(ev) {
+    editionId = ev ? ev.id : null;
+    document.getElementById('titreFormulaire').textContent = ev ? 'Modifier l’événement' : 'Ajouter un événement';
+    document.getElementById('jour').value = ev ? (ev.day || '') : '';
+    document.getElementById('mois').value = ev ? (ev.month || '') : '';
+    document.getElementById('titre').value = ev ? (ev.title || '') : '';
+    document.getElementById('desc').value = ev ? (ev.desc || '') : '';
+    msg(errForm, '');
+    vueAdmin.hidden = true; vueForm.hidden = false;
+    window.scrollTo(0, 0);
+  }
+
+  document.getElementById('btnAnnuler').addEventListener('click', function () {
+    vueForm.hidden = true; vueAdmin.hidden = false;
+  });
+
+  document.getElementById('formEvenement').addEventListener('submit', function (e) {
+    e.preventDefault();
+    msg(errForm, '');
+    var corps = JSON.stringify({
+      day: document.getElementById('jour').value.trim(),
+      month: document.getElementById('mois').value.trim(),
+      title: document.getElementById('titre').value.trim(),
+      desc: document.getElementById('desc').value.trim()
+    });
+    var requete = editionId
+      ? api('/api/admin/events/' + encodeURIComponent(editionId), { method: 'PUT', body: corps })
+      : api('/api/admin/events', { method: 'POST', body: corps });
+    requete.then(function () {
+      vueForm.hidden = true; vueAdmin.hidden = false;
+      chargerListe();
+    }).catch(function (err) { msg(errForm, err.message); });
+  });
+
+  /* ---------- Démarrage ---------- */
+  function afficherAdmin() {
+    vueConnexion.hidden = true; vueAdmin.hidden = false;
+    chargerListe();
+  }
+
+  api('/api/admin/me').then(function (d) {
+    if (d.connecte) afficherAdmin();
+    else vueConnexion.hidden = false;
+  }).catch(function () {
+    msg(errConnexion, 'Service d’administration indisponible pour le moment.');
+    vueConnexion.hidden = false;
+  });
+})();
+</script>
+</body>
+</html>

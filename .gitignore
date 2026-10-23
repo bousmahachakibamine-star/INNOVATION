@@ -4,3 +4,9 @@
 
 # Captures d'écran de vérification (ne pas publier)
 artifacts/
+
+# Outils et état locaux (ne pas publier)
+node_modules/
+.wrangler/
+.secrets/
+freebuff.wrangler.jsonc
