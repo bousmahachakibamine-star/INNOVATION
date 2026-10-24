@@ -9,6 +9,7 @@ Site du **club scientifique Innovation** de l'**ESGN Kolea**.
 | `index.html` | Page unique : accueil (bannière héros animée en particules), présentation, nos membres, événements & activités, nos réseaux |
 | `styles.css` | Apparence du site (palette bleu marine du club) |
 | `script.js` | Menu mobile, lien actif au défilement, animations douces |
+| `api/`, `lib/` | Backend du panneau `/admin` : fonctions serveur Vercel (sessions, stockage KV) |
 | `favicon.svg` | Logo du club (onglet du navigateur) |
 
 ## Personnaliser le site
@@ -27,10 +28,12 @@ La page principale se trouve dans **`index.html`** :
 Le panneau est disponible à l'adresse `/admin`. Il permet de gérer les trois événements de départ comme les
 nouveaux événements, qui utilisent automatiquement le même affichage et les mêmes animations.
 
-L'API nécessite un Worker avec une base D1 liée sous le nom `DB` et trois secrets configurés dans
-l'environnement de déploiement : `ADMIN_EMAIL`, `ADMIN_PASSWORD` et `SESSION_SECRET` (une valeur aléatoire
-d'au moins 32 caractères). Ne placez pas ces identifiants dans les fichiers du site ni dans Git. La base
-crée ses tables et ajoute les trois événements d'exemple à sa première utilisation.
+Le panneau repose sur les fonctions serveur Vercel du dossier `api/`. Dans le projet Vercel, configurez
+les variables `ADMIN_EMAIL` et `ADMIN_PASSWORD` (plus `SESSION_SECRET`, une valeur aléatoire d'au moins
+32 caractères, recommandée) et connectez un stockage **Vercel KV** au projet : les variables
+`KV_REST_API_URL` / `KV_REST_API_TOKEN` sont alors ajoutées automatiquement. Ne placez pas ces identifiants
+dans les fichiers du site ni dans Git. Au premier appel, le stockage est initialisé avec les trois événements
+d'exemple.
 
 ## Aperçu local
 
