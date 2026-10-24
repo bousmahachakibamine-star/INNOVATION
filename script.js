@@ -12,7 +12,6 @@
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.site-nav');
   var navLinks = document.querySelectorAll('.nav-link');
-  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- Menu mobile ---------- */
   if (toggle && nav) {
@@ -66,7 +65,7 @@
   /* ---------- Apparition douce des sections ---------- */
   var revealEls = document.querySelectorAll('.reveal');
   var revealObserver = null;   /* réutilisé pour les cartes ajoutées via l'API */
-  if (!reduceMotion && 'IntersectionObserver' in window) {
+  if ('IntersectionObserver' in window) {
     revealEls.forEach(function (el, i) {
       el.style.transitionDelay = ((i % 4) * 90) + 'ms';
     });
@@ -360,7 +359,7 @@
     function clearTyping() { typeTimers.forEach(clearTimeout); typeTimers = []; }
     function typeText(el, text, speed, done) {
       if (!el) { if (done) done(); return; }
-      if (reduceMotion || !text) { el.textContent = text || ''; if (done) done(); return; }
+      if (!text) { el.textContent = text || ''; if (done) done(); return; }
       el.textContent = '';
       var i = 0;
       (function step() {
@@ -479,7 +478,7 @@
       mImg.style.width = mT + 'px';
       mImg.style.height = mT + 'px';
       if (m === 0) { mImg.className = 'tete'; }
-      else { mImg.style.opacity = reduceMotion ? '0' : (0.38 * (1 - m / M_N)).toFixed(2); }
+      else { mImg.style.opacity = (0.38 * (1 - m / M_N)).toFixed(2); }
       mascotte.appendChild(mImg);
       mImgs[m] = mImg;
     }
@@ -496,10 +495,12 @@
     var mCible = { x: mPos[0].x, y: mPos[0].y, rot: 0 };
 
     /* ---------- Bulles de parole ----------
-       Les intervalles suivent les phases du trajet de la mascotte, exprimées
-       dans le même avancement de page que celui qui pilote son animation. */
+       Les intervalles ci-dessous ne sont qu'un REPLI : dès que possible, ils
+       sont recalculés à partir des vraies sections de la page (voir
+       mMesureAncres) pour que chaque texte arrive au bon endroit sur PC
+       comme sur téléphone. */
     var BULLES = [
-      { texte: 'Salut, bienvenue au club 👋 Clique sur le logo du club 👀', de: 0, a: 0.11 },
+      { texte: 'Salut, bienvenue au club 👋 Touche les particules, clique sur « ✦ Dévoiler le logo » et parcours notre site !', de: 0, a: 0.11 },
       { texte: 'Voici notre bureau, pas mal non ?', de: 0.11, a: 0.26 },
       { texte: 'Nos départements, là où tout se joue !', de: 0.26, a: 0.35 },
       { texte: 'Nos événements, on a hâte de vous y voir 🔥', de: 0.35, a: 0.40 },
@@ -512,6 +513,50 @@
     function mFrac(px) {                 // px → avancement du défilement (0 → 1)
       var hs = document.documentElement.scrollHeight - window.innerHeight;
       return hs > 0 ? px / hs : 0;
+    }
+
+    /* ---------- Ancrage des bulles sur les vraies sections ----------
+       PC et téléphone n'ont pas la même mise en page : des intervalles fixes
+       en « fraction de page » décalaient tout sur mobile (départements brefs,
+       « Byeeee » au début des événements…). On mesure donc la position des
+       sections et on y aligne les huit bulles, quel que soit l'écran. */
+    var mAncres = null, mAncresT = 0;
+    function mMesureAncres(immediat) {
+      var now = Date.now();
+      if (!immediat && now - mAncresT < 250) return;   // 1 mesure max. tous les 250 ms
+      mAncresT = now;
+      var hs = document.documentElement.scrollHeight - window.innerHeight;
+      if (hs <= 0) return;
+      var vh = window.innerHeight;
+      function f(sel, lead) {              // fraction de page où la section « arrive »
+        var el = document.querySelector(sel);
+        if (!el) return null;
+        var top = el.getBoundingClientRect().top + window.scrollY;
+        return Math.max(0, Math.min(1, (top - vh * lead) / hs));
+      }
+      var bureau = f('.bureau-ring', 0.55); // lead 0.55 : la section occupe le milieu de l'écran
+      var dept = f('.dept-grid', 0.55);
+      var evt = f('#evenements', 0.55);
+      var finEvt = f('#galerie', 0.55);     // fin des événements = arrivée de la galerie
+      var finGal = f('#reseaux', 0.55);     // fin de la galerie = arrivée des réseaux
+      if (bureau == null || dept == null || evt == null || finEvt == null || finGal == null) return;
+      if (!(bureau < dept && dept < evt && evt < finEvt && finEvt < finGal)) return; // ordre incohérent : repli
+      mAncres = { bureau: bureau, dept: dept, evt: evt, finEvt: finEvt, finGal: finGal };
+      mAppliqueAncres();
+    }
+    function mAppliqueAncres() {
+      if (!mAncres) return;
+      var A = mAncres;
+      var depart = Math.max(A.evt + 0.01, 0.85 * A.finEvt); // début de la sortie : phase « au revoir » (t = 0.85)
+      var finBlague = A.finEvt + (A.finGal - A.finEvt) * 0.35;
+      BULLES[0].a = A.bureau;
+      BULLES[1].de = A.bureau; BULLES[1].a = A.dept;
+      BULLES[2].de = A.dept;   BULLES[2].a = A.evt;
+      BULLES[3].de = A.evt;    BULLES[3].a = depart;      // « Nos événements… »
+      BULLES[4].de = depart;   BULLES[4].a = A.finEvt;    // « Byeeee ! » pendant la sortie
+      BULLES[5].de = A.finEvt; BULLES[5].a = finBlague;   // « T'as vraiment pensé… » : la ré-entrée
+      BULLES[6].de = finBlague; BULLES[6].a = A.finGal;   // « INNOVATION… » pendant la galerie
+      BULLES[7].de = A.finGal; BULLES[7].a = 1.01;        // « Découvrez-nous… » : les réseaux
     }
     var mBulleYmin = 8;   // la bulle ne passe jamais sous l'en-tête
     function mCalculeBulleYmin() {
@@ -527,7 +572,14 @@
     bulle.innerHTML = '<span class="fantome"></span><span class="ecrit"></span>';
     document.body.appendChild(bulle);
     var elFantome = bulle.children[0], elEcrit = bulle.children[1];
-    var bIdx = -2, bT0 = 0, bN = -1, bW = 0, bH = 0;
+    var bIdx = -2, bT0 = 0, bN = -1, bW = 0, bH = 0, bCote = null, bGlisse = 0, bVU = false;
+    /* Changement de côté ou de texte : la bulle glisse vers sa nouvelle
+       place au lieu de sauter d'un bord à l'autre. */
+    function mGlisse() {
+      bulle.classList.add('glisse');
+      if (bGlisse) clearTimeout(bGlisse);
+      bGlisse = setTimeout(function () { bulle.classList.remove('glisse'); }, 440);
+    }
     function bLettres(j) { return j >= 0 ? Array.from(BULLES[j].texte) : []; }
     function bEcritEnCours() { return bIdx >= 0 && bN < bLettres(bIdx).length; }
 
@@ -540,28 +592,33 @@
         elEcrit.textContent = '';
         elFantome.textContent = i >= 0 ? BULLES[i].texte : '';
         bW = bulle.offsetWidth; bH = bulle.offsetHeight; // mesure une seule fois par bulle
+        if (bVU) mGlisse(); // la toute première apparition ne glisse pas (position encore nulle)
       }
       if (i < 0) { bulle.style.opacity = 0; return; }
       var lettres = bLettres(i);
-      var n = reduceMotion ? lettres.length
-        : Math.min(lettres.length, Math.floor((performance.now() - bT0) / VITESSE_TEXTE));
+      var n = Math.min(lettres.length, Math.floor((performance.now() - bT0) / VITESSE_TEXTE));
       if (n !== bN) { bN = n; elEcrit.textContent = lettres.slice(0, n).join(''); }
 
       var W = window.innerWidth, hx = mEcran(mPos[0].x), hy = mPos[0].y;
       var adroite = hx < W / 2 - M_TAILLE / 2; // logo à gauche : bulle à sa droite, et inversement
+      if (bVU && adroite !== bCote) { bCote = adroite; mGlisse(); } // changement de côté : glissement fluide
       var x = adroite ? hx + M_TAILLE + 10 : hx - bW - 10;
       x = Math.max(8, Math.min(W - bW - 8, x));
       var y = Math.max(mBulleYmin, hy - bH + 20);
       bulle.classList.toggle('inverse', !adroite);
       bulle.style.opacity = (hx > -M_TAILLE / 2 && hx < W - M_TAILLE / 2) ? 1 : 0; // cachée si le logo est hors écran
       bulle.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+      bVU = true;
     }
 
     function mCalculeCible() {
       var h = document.documentElement.scrollHeight - window.innerHeight;
       var p = h > 0 ? window.scrollY / h : 0;
       var W = window.innerWidth, H = window.innerHeight, L = W + M_TAILLE * 2;
-      var q = p * M_CYCLES;
+      /* Fin du 1er parcours = fin de la section Événements : c'est là que la
+         mascotte traverse l'écran et disparaît (« Byeeee ! »). Repli : 0.5. */
+      var fin1 = mAncres ? mAncres.finEvt : 0.5;
+      var q = p <= fin1 ? p / fin1 : 1 + (p - fin1) / Math.max(1e-4, 1 - fin1);
       var k = Math.min(Math.floor(q), M_CYCLES - 1); // numéro du parcours
       var t = q - k;                                  // avancement (0 → 1)
       var yHaut = H * 0.30, yBas = H * 0.56, ySortie = H * 0.72;
@@ -569,24 +626,24 @@
       var xv = W * (k % 2 ? 0.62 : 0.3) - r;          // colonne de la descente
       var ease = function (u) { return u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; };
       var x, y, rot = 0;
-      if (t < 0.22) {                                 // 1. glisse vers la colonne
-        var u1 = 1 - (1 - t / 0.22) * (1 - t / 0.22);
+      if (t < 0.20) {                                 // 1. glisse vers la colonne
+        var u1 = 1 - (1 - t / 0.20) * (1 - t / 0.20);
         var x0 = k === 0 ? W - M_TAILLE - M_MARGE : W + M_TAILLE;
         var y0 = k === 0 ? yHaut : ySortie;
         x = x0 + (xv - x0) * u1;
         y = y0 + (yHaut - y0) * ease(u1);
-      } else if (t < 0.52) {                          // 2. plongée en piqué
-        var u2 = (t - 0.22) / 0.30;
+      } else if (t < 0.48) {                          // 2. plongée en piqué
+        var u2 = (t - 0.20) / 0.28;
         x = xv;
         y = yHaut + (yBas - yHaut) * u2 * u2;
-      } else if (t < 0.70) {                          // 3. petit looping
-        var u3 = (t - 0.52) / 0.18;
+      } else if (t < 0.85) {                          // 3. petit looping
+        var u3 = (t - 0.48) / 0.37;
         var th = Math.PI - u3 * 2 * Math.PI;
         x = xv + r + r * Math.cos(th);
         y = yBas + r * Math.sin(th);
         rot = -u3 * 360;
       } else {                                        // 4. repart et sort par le bord
-        var u4 = Math.pow((t - 0.70) / 0.30, 1.4);
+        var u4 = Math.pow((t - 0.85) / 0.15, 1.4);
         x = xv * (1 - u4 * u4) + (-M_TAILLE) * u4 * u4;
         y = yBas * (1 - u4) * (1 - u4) + ySortie * (2 * (1 - u4) * u4 + u4 * u4);
       }
@@ -603,24 +660,25 @@
       if (!mActif) { mActif = true; requestAnimationFrame(mBoucle); }
     }
     window.addEventListener('scroll', mReveiller, { passive: true });
-    window.addEventListener('resize', function () { mCalculeBulleYmin(); mReveiller(); });
-    window.addEventListener('load', function () { mCalculeBulleYmin(); mReveiller(); });
-    window.setTimeout(function () { mCalculeBulleYmin(); mReveiller(); }, 900); // après polices/images
+    window.addEventListener('resize', function () { mCalculeBulleYmin(); mMesureAncres(true); mReveiller(); });
+    window.addEventListener('load', function () { mCalculeBulleYmin(); mMesureAncres(true); mReveiller(); });
+    window.setTimeout(function () { mCalculeBulleYmin(); mMesureAncres(true); mReveiller(); }, 900); // après polices/images
 
     function mBoucle() {
+      mMesureAncres();                // les sections bougent (images, contenu différé)
       mCalculeCible();
-      var kk = reduceMotion ? 1 : 0.2;
+      var kk = 0.2;
       mPos[0].x += (mCible.x - mPos[0].x) * kk;
       mPos[0].y += (mCible.y - mPos[0].y) * kk;
       for (var i2 = 1; i2 <= M_N; i2++) {
-        var a2 = mPos[i2 - 1], b2 = mPos[i2], f = reduceMotion ? 1 : 0.28;
+        var a2 = mPos[i2 - 1], b2 = mPos[i2], f = 0.28;
         b2.x += (a2.x - b2.x) * f;
         b2.y += (a2.y - b2.y) * f;
       }
       var tilt = Math.max(-15, Math.min(15, (mCible.x - mPos[0].x) * 0.12)) + mCible.rot;
       for (var j2 = 0; j2 <= M_N; j2++) {
         var off = (M_TAILLE - mTailles[j2]) / 2;
-        if (j2 > 0 && !reduceMotion) {
+        if (j2 > 0) {
           var d2 = Math.sqrt(Math.pow(mPos[0].x - mPos[j2].x, 2) + Math.pow(mPos[0].y - mPos[j2].y, 2));
           mImgs[j2].style.opacity = (0.38 * (1 - j2 / M_N) * Math.min(1, d2 / 40)).toFixed(2);
         }

@@ -699,7 +699,6 @@
   const ctx = canvas.getContext('2d');
   const pre = document.getElementById('pre'), post = document.getElementById('post');
   const wordsEl = document.getElementById('words');
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let W, H, dpr, S, OX, OY, LS, CX, CY, solid = null, logos = [];
   let parts = [], buckets = Array.from({ length: 8 }, () => []);
@@ -859,7 +858,7 @@
     ctx.clearRect(0, 0, W, H);
     if (state !== 'revealing') setBlur(0);
     if (state === 'play') {
-      drawParticles(Math.min(1, time / 0.8 + (reduceMotion ? 1 : 0)));
+      drawParticles(Math.min(1, time / 0.8));
     } else if (state === 'revealing') {
       const t = revealT;
       // Astuce anti-pixels : tremblement + flou + halo pile au moment où les particules cèdent la place au logo plein
@@ -1001,6 +1000,16 @@
     updateNav();
   }
   document.getElementById('replay').addEventListener('click', replay);
+  /* Retour sur la page via l'historique (bouton « retour ») : l'état figé
+     dans le cache réafficherait le logo déjà assemblé — on relance l'intro. */
+  addEventListener('pageshow', e => {
+    if (!e.persisted || !logos.length) return;
+    if (state === 'switching') { sceneIdx = toIdx; setPalette(sceneIdx); fuse = 0; }
+    state = 'play';
+    replay();
+    rafId = 0;
+    startLoop();
+  });
   let lastW = 0, lastH = 0;
   addEventListener('resize', () => {
     if (!logos.length) return;
@@ -1012,7 +1021,7 @@
     if (w === lastW && h === lastH) return;
     lastW = w; lastH = h;
     // Formation pas encore terminée → on la rejoue ; sinon on garde la forme actuelle.
-    build(time > 3.6 || reduceMotion, sceneIdx); updateNav();
+    build(time > 3.6, sceneIdx); updateNav();
   });
 
   /* ============ DÉMARRAGE ============ */
@@ -1026,7 +1035,7 @@
     const load = async (src, ribbon) => { try { return src ? await imageLogoData(src) : vectorLogoData(ribbon); }
                                            catch (e) { console.warn('Image introuvable, logo vectoriel utilisé.', e); return vectorLogoData(ribbon); } };
     logos = [await load(CONFIG.LOGO_SRC, false), await load(CONFIG.LOGO_SRC_ROSE, true)];
-    setPalette(0); build(reduceMotion, 0); lastW = canvas.clientWidth; lastH = canvas.clientHeight; updateNav();
+    setPalette(0); build(false, 0); lastW = canvas.clientWidth; lastH = canvas.clientHeight; updateNav();
     // La physique des particules ne tourne que tant que le héros est visible (CPU/batterie).
     new IntersectionObserver(es => { heroVisible = es[0].isIntersecting; if (heroVisible) startLoop(); }, { threshold: 0 }).observe(hero);
     startLoop();

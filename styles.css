@@ -942,6 +942,11 @@ main { position: relative; }
   transition: opacity .25s;
   will-change: transform;
 }
+/* La bulle glisse quand elle change de côté ou change de texte :
+   elle traverse au lieu de sauter d'un bord à l'autre. */
+#bulle.glisse {
+  transition: opacity .25s, transform .4s cubic-bezier(.3, .9, .3, 1);
+}
 #bulle .fantome { display: block; visibility: hidden; }   /* réserve la taille finale */
 #bulle .ecrit { position: absolute; left: 14px; right: 14px; top: 10px; }
 #bulle .ecrit::after {                                     /* curseur qui clignote */
@@ -1076,11 +1081,6 @@ button:focus-visible {
   outline-offset: 3px;
   border-radius: 8px;
 }
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
-}
-
 /* ============================================================
    GALERIE DU SITE — espace dédié (#galerie)
    Rubans infinis de vidéos + grille photos/vidéos
@@ -1102,7 +1102,7 @@ button:focus-visible {
 .piste {
   display: flex;
   width: max-content;
-  animation: rubanDefile var(--dur, 30s) linear infinite;
+  animation: rubanDefile var(--dur, 24s) linear infinite;
   will-change: transform;
 }
 .ruban.inverse .piste { animation-direction: reverse; }
@@ -1188,9 +1188,6 @@ button:focus-visible {
   font-size: .78rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, .28);
   pointer-events: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .piste { animation: none !important; }
 }
 @media (max-width: 900px) {
   .media-grid { columns: 2; column-gap: 14px; }
@@ -1467,14 +1464,9 @@ button:focus-visible {
   }
 }
 
-/* ---------- Accessibilité : mouvement réduit ---------- */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
-  }
-}
+/* ---------- Animations ---------- */
+/* L'option système « Réduire les mouvements » n'est plus appliquée ici :
+   le site joue les mêmes animations partout, PC comme téléphone. */
 
 /* ---------- Mobile : fluidité et retours tactiles ---------- */
 @media (max-width: 900px) {
