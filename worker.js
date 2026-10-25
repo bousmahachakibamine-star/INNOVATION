@@ -1,5 +1,5 @@
 /* ============================================================
-   INNOVATION — Club scientifique de l'ESGN Kolea
+   INNOVATION — Club scientifique de l'ESGEN Kolea
    Worker Freebuff Sites : fichiers statiques + API d'administration
    - GET  /api/events                → liste publique des événements
    - POST /api/admin/login           → { email, password } → cookie de session

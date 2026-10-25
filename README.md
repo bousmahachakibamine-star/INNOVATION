@@ -1,6 +1,6 @@
 # INNOVATION 🚀
 
-Site du **club scientifique Innovation** de l'**ESGN Kolea**.
+Site du **club scientifique Innovation** de l'**ESGEN Kolea**.
 
 ## Fichiers du site
 

@@ -1,5 +1,5 @@
 /* ============================================================
-   INNOVATION — Club scientifique de l'ESGN Kolea
+   INNOVATION — Club scientifique de l'ESGEN Kolea
    Script du site : menu mobile, lien actif au défilement,
    en-tête ombré et apparition douce des sections.
    (La bannière héros a son propre script dans index.html.)
@@ -341,6 +341,29 @@
   } else {
     setRubans(true);
   }
+
+  /* ---------- Cartes départements : la lampe du curseur ----------
+     Au survol (sans cliquer), la photo du responsable n'apparaît que dans
+     le cercle suivi par le pointeur ; le rayon lui-même est géré en CSS. */
+  document.querySelectorAll('.dept-card').forEach(function (card) {
+    var peek = card.querySelector('.dept-peek');
+    if (!peek) return;
+    card.addEventListener('pointermove', function (e) {
+      if (e.pointerType === 'touch') return;   /* au doigt : pas de survol */
+      var r = card.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      var x = e.clientX - r.left, y = e.clientY - r.top;
+      peek.style.setProperty('--mx', x.toFixed(1) + 'px');
+      peek.style.setProperty('--my', y.toFixed(1) + 'px');
+      /* léger décalage de la photo : effet de profondeur */
+      peek.style.setProperty('--px', (((x / r.width) - .5) * -14).toFixed(1) + 'px');
+      peek.style.setProperty('--py', (((y / r.height) - .5) * -10).toFixed(1) + 'px');
+    });
+    card.addEventListener('pointerleave', function () {
+      peek.style.removeProperty('--px');
+      peek.style.removeProperty('--py');
+    });
+  });
 
   var overlay = document.getElementById('deptOverlay');
   if (overlay) {
