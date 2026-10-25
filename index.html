@@ -53,7 +53,7 @@
     .sep { width: 1px; height: 20px; background: rgba(0,0,0,.12); margin: 0 2px; }
 
     /* Textes */
-    .content { position: absolute; left: 0; right: 0; bottom: 5vh; text-align: center; padding: 0 20px; z-index: 2;
+    .content { position: absolute; left: 0; right: 0; bottom: 4vh; text-align: center; padding: 0 20px; z-index: 2;
                pointer-events: none; opacity: 0; transform: translateY(14px); transition: opacity 1s ease, transform 1s ease; }
     .content.show { opacity: 1; transform: none; }
     .content.show .actions { pointer-events: auto; }
@@ -62,7 +62,9 @@
        le premier O devenant un atome. Le texte reste dans le DOM (accessibilité,
        moteur de recherche) ; le canvas ne fait que le remplacer à l'écran. */
     .hero-word { position: relative; line-height: 1; }
-    .hero-word canvas { display: block; width: min(100%, 880px); margin: 0 auto; }
+    .hero-word canvas { display: block; width: min(100%, 1060px); margin: 0 auto;
+                        /* les particules deviennent jouables : survol = repousse, clic = éparpillement */
+                        pointer-events: auto; cursor: pointer; touch-action: manipulation; }
     .hero-word canvas[hidden] { display: none; }
     .hero-word.is-canvas .hero-word-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .content p { color: #4a5488; margin-top: .5em; font-size: clamp(.9rem, 1.4vw, 1.1rem); }

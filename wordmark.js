@@ -3,10 +3,20 @@
    Le mot INNOVATION se forme en tourbillon de particules, le
    premier O devient un atome (orbites, électrons, noyau), puis
    le mot se fige en dégradé bleu marine avec un éclat qui le
-   traverse. Il se lance quand la bannière héros affiche son
-   contenu (#post « show »), se rejoue à chaque « ↻ » et s'arrête
-   dès que le héros quitte l'écran (zéro CPU inutile).
-   Sans canvas, ou si l'utilisateur demande moins d'animations,
+   traverse.
+
+   Détails de confort :
+   — les lettres sont posées bas dans leur cadre : le mot descend
+     et ne masque plus le logo du club au-dessus ;
+   — les particules partent de très loin (plusieurs fois la largeur
+     du cadre) et s'effacent en approchant des bords : on ne voit
+     plus le découpage rectangulaire du canvas ;
+   — le curseur repousse les particules formées et un clic les
+     éparpille, comme dans la maquette fournie.
+
+   Se lance quand la bannière héros affiche son contenu (#post
+   « show »), se rejoue à chaque « ↻ », s'arrête dès que le héros
+   quitte l'écran. Sans canvas, ou avec « moins d'animations »,
    le titre « Innovation » reste un simple texte.
    ============================================================ */
 (function () {
@@ -24,19 +34,25 @@
   var TEXT = 'INNOVATION', AI = 3, TRACK = 0.10;
   var FONT = '"Poppins","Segoe UI",system-ui,sans-serif';
   var COLORS = ['#1b2370', '#232d85', '#2f4aa8', '#4a7be0', '#8ea0ff'];
-  var LARGEUR_MAX = 880;
+  var BOITE_MAX = 1060;      // largeur max du cadre (texte + marges d'approche)
+  var TEXTE_MAX = 880;       // largeur max du mot lui-même
+  var MARGE_MIN = 24;        // marge min entre le mot et le bord du cadre
+  var DEPART = 3.2;          // distance de départ des particules (× largeur du cadre)
+  var MR = 75, RR = MR * MR;  // rayon d'action du curseur
   var TWO = Math.PI * 2;
 
   var W = 0, H = 0, dpr = 1, L = {}, P = [], buckets = [];
   var T = 0, t0 = 0, raf = 0, actif = false, heroVisible = true, pause = 0;
+  var souris = { x: -9999, y: -9999, on: false };
 
   function rnd(a, b) { return a + Math.random() * (b - a); }
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
-  /* ---------- Mesure : taille des lettres, place de l'atome ---------- */
+  /* ---------- Mesure : cadre, taille des lettres, place de l'atome ---------- */
   function mesurer() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = Math.max(260, Math.min(Math.round(h1.getBoundingClientRect().width || 640), LARGEUR_MAX));
+    var dispo = Math.max(260, Math.round(h1.getBoundingClientRect().width || 640));
+    W = Math.min(dispo, BOITE_MAX);                       // = CSS min(100%, 1060px)
 
     var m = document.createElement('canvas').getContext('2d');
     m.font = '700 100px ' + FONT;
@@ -46,20 +62,35 @@
     ws[AI] = capEm * 1.3 + 0.05;               // place réservée à l'atome
     for (i = 0; i < ws.length; i++) em += ws[i];
     em += TRACK * (TEXT.length - 1);
-    /* Filet de sécurité : si la mesure est impossible (aucune police disponible),
-       on retombe sur la largeur moyenne d'une capitale plutôt que de tout écraser. */
+    /* Filet de sécurité : si la mesure est impossible (aucune police
+       disponible), on retombe sur la largeur moyenne d'une capitale. */
     if (!(em > 2)) em = TEXT.length * 0.78;
 
-    var fs = W / em, cap = capEm * fs;
+    /* Marge latérale : laisse de l'air pour que les particules arrivent
+       de l'extérieur sans être coupées net sur une ligne verticale. */
+    var vise = Math.min(dispo * 0.9, TEXTE_MAX);
+    var margeX = Math.max(MARGE_MIN, Math.min((W - vise) / 2, 90));
+    if (W - 2 * margeX < 200) margeX = Math.max(0, (W - 200) / 2);
+
+    var fs = (W - 2 * margeX) / em, cap = capEm * fs;
     H = Math.max(48, Math.ceil(fs * 1.5));
-    var x0 = (W - em * fs) / 2, cy = H / 2, xs = [], x = x0;
+    /* Les lettres sont posées bas dans le cadre : le mot descend (le logo
+       du club respire au-dessus) et il reste beaucoup d'air au-dessus pour
+       l'arrivée des particules. */
+    var base = H - fs * 0.14;
+    var x0 = margeX, xs = [], x = x0;
     for (i = 0; i < TEXT.length; i++) { xs.push(x); x += (ws[i] + TRACK) * fs; }
 
-    L = { fs: fs, tw: em * fs, x0: x0, cy: cy, cap: cap, base: cy + cap / 2, xs: xs, ws: ws };
+    L = { fs: fs, tw: W - 2 * margeX, x0: x0, cap: cap, base: base, xs: xs, ws: ws,
+          cy: base - cap / 2 };
     L.ax = xs[AI] + ws[AI] * fs / 2;
-    L.ay = cy;
+    L.ay = L.cy;
     L.R = cap * 0.62;
     L.r = L.R * 0.34;
+    /* Largeur du fondu de bord : n'excède jamais la place réellement dispo */
+    L.fadeX = Math.min(24, Math.max(8, margeX));
+    L.fadeHaut = 24;
+    L.fadeBas = Math.min(24, Math.max(8, H - base));
 
     cv.width = Math.round(W * dpr);
     cv.height = Math.round(H * dpr);
@@ -96,16 +127,18 @@
   function newP(col) {
     return { k: 0, col: col, tx: 0, ty: 0, bx: 0, by: 0, x: 0, y: 0, sx: 0, sy: 0, cx: 0, cy: 0,
              d: 0, du: 1, s: rnd(1.1, 2.1), a: rnd(0.55, 1), th: 0, om: 0, orb: 0,
+             ox: 0, oy: 0, vx: 0, vy: 0, K: rnd(0.045, 0.085), rel: 1,
              al: 0, sz: 1, ph: rnd(0, TWO) };
   }
 
-  /* Départ lointain + trajectoire courbe (effet de tourbillon) */
+  /* Départ très lointain + trajectoire courbe (tourbillon qui s'engrène) :
+     les particules entrent dans le cadre en fondu, jamais d'un coup. */
   function trace(p, tx, ty) {
-    var ang = rnd(0, TWO), far = Math.max(W, H) * 0.75, rad = far * rnd(0.55, 1.15);
+    var ang = rnd(0, TWO), far = Math.max(W, H) * DEPART, rad = far * rnd(0.35, 1);
     p.sx = W / 2 + Math.cos(ang) * rad;
-    p.sy = L.cy + Math.sin(ang) * rad * 0.8;
+    p.sy = L.cy + Math.sin(ang) * rad * 0.7;
     var dx = tx - p.sx, dy = ty - p.sy, dist = Math.sqrt(dx * dx + dy * dy) || 1;
-    var sw = (Math.random() < 0.85 ? 1 : -1) * rnd(0.25, 0.6) * dist;
+    var sw = (Math.random() < 0.85 ? 1 : -1) * rnd(0.15, 0.4) * dist;
     p.cx = (p.sx + tx) / 2 + (-dy / dist) * sw;
     p.cy = (p.sy + ty) / 2 + (dx / dist) * sw;
   }
@@ -180,20 +213,55 @@
       bx = L.ax + (p.tx - L.ax) * br;
       by = L.ay + (p.ty - L.ay) * br;
     }
+
     var arr = p.d + p.du, u = clamp((T - p.d) / p.du, 0, 1);
     if (u < 1) {
       var e = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2, ie = 1 - e;
       p.x = ie * ie * p.sx + 2 * ie * e * p.cx + e * e * bx;
       p.y = ie * ie * p.sy + 2 * ie * e * p.cy + e * e * by;
+      p.ox = p.oy = p.vx = p.vy = 0;
+      p.rel = 1;
     } else {
-      p.x = bx; p.y = by;
+      /* Particules installées : le curseur les pousse, le ressort les ramène */
+      if (souris.on) {
+        var dx = bx + p.ox - souris.x, dy = by + p.oy - souris.y, d2 = dx * dx + dy * dy;
+        if (d2 < RR && d2 > 0.01) {
+          var dd = Math.sqrt(d2), f = 1 - dd / MR;
+          f = f * f * 3.2;
+          p.vx += dx / dd * f;
+          p.vy += dy / dd * f;
+        }
+      }
+      /* juste après un clic, la particule flotte un instant avant le retour */
+      if (p.rel < 0) p.rel += 1 / 60;
+      else {
+        p.vx -= p.ox * p.K;
+        p.vy -= p.oy * p.K;
+      }
+      p.vx *= 0.86;
+      p.vy *= 0.86;
+      p.ox += p.vx;
+      p.oy += p.vy;
+      p.x = bx + p.ox;
+      p.y = by + p.oy;
     }
+
     var al = p.a * Math.min(1, T / 0.8), sz = p.s;
     if (p.k !== 3) {
       var since = T - arr;
       if (since > 0 && since < 0.45) sz *= 1 + (1 - since / 0.45) * 1.7;   // « pop » à l'arrivée
     }
     p.al = al; p.sz = sz;
+  }
+
+  /* Fondu au bord : une particule qui entre ou sort du cadre apparaît en
+     douceur — plus aucune découpe nette sur le rectangle du canvas. */
+  function bordFade(p) {
+    var f = Math.min(p.x / L.fadeX, (W - p.x) / L.fadeX,
+                     p.y / L.fadeHaut, (H - p.y) / L.fadeBas);
+    if (f >= 1) return 1;
+    if (f <= 0) return 0;
+    return f * f * (3 - 2 * f);
   }
 
   /* ---------- Mot plein, dégradé + éclat traversant ---------- */
@@ -257,7 +325,7 @@
   function frame(now) {
     raf = 0;
     T = (now - t0) / 1000;
-    if (T < 0) T =0;
+    if (T < 0) T = 0;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (T < 3.5 && T > 0.3) {                       // traînées pendant l'assemblage
       ctx.globalCompositeOperation = 'destination-out';
@@ -278,7 +346,7 @@
       for (i = 0; i < list.length; i++) {
         p = list[i];
         step(p);
-        ctx.globalAlpha = p.al;
+        ctx.globalAlpha = p.al * bordFade(p);
         ctx.fillRect(p.x - p.sz / 2, p.y - p.sz / 2, p.sz, p.sz);
       }
     }
@@ -293,6 +361,7 @@
   function texteSeul() {
     actif = false;
     if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    souris.on = false;
     cv.hidden = true;
     h1.classList.remove('is-canvas');
   }
@@ -305,6 +374,7 @@
       mesurer();
       init();
       actif = true;
+      souris.on = false;
       t0 = performance.now() - (settled ? 10000 : 0);
       if (raf) cancelAnimationFrame(raf);
       pause = 0;
@@ -317,8 +387,44 @@
 
   function arreter() {
     actif = false;
+    souris.on = false;
     if (raf) { cancelAnimationFrame(raf); raf = 0; }
   }
+
+  /* ---------- Interactions (souris : repousse, clic : éparpillement) ---------- */
+  function versCanvas(e) {
+    var r = cv.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    return {
+      x: (e.clientX - r.left) * (W / r.width),
+      y: (e.clientY - r.top) * (H / r.height)
+    };
+  }
+
+  cv.addEventListener('pointermove', function (e) {
+    if (e.pointerType === 'touch') return;          // au doigt : le défilement reste fluide
+    var q = versCanvas(e);
+    if (!q) return;
+    souris.x = q.x; souris.y = q.y;
+    souris.on = !reduce.matches && actif;
+  });
+  cv.addEventListener('pointerleave', function () { souris.on = false; });
+  cv.addEventListener('pointerdown', function (e) {
+    if (!actif) return;
+    var q = versCanvas(e);
+    if (!q) return;
+    var R = Math.max(W, H) * 0.5, F = 380;
+    for (var i = 0; i < P.length; i++) {
+      var p = P[i];
+      var dx = p.x - q.x, dy = p.y - q.y, d2 = dx * dx + dy * dy;
+      if (d2 > R * R) continue;
+      var d = Math.sqrt(d2) || 1;
+      var mag = (1 - d / R) * F * (0.6 + Math.random() * 0.8) + 40;
+      p.vx += dx / d * mag - dy / d * mag * 0.35;
+      p.vy += dy / d * mag + dx / d * mag * 0.35;
+      p.rel = -0.15 - Math.random() * 0.35;         // petit temps de pause avant le retour
+    }
+  });
 
   /* Le héros sort de l'écran → la boucle dort ; il revient → reprise
      là où elle s'était arrêtée (le temps d'arrêt est ajouté au départ). */
