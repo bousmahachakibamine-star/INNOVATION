@@ -96,7 +96,7 @@
         if (!evts.length) {
           var empty = document.createElement('p');
           empty.className = 'events-empty';
-          empty.textContent = 'Aucun événement à venir pour le moment.';
+          empty.textContent = 'Restez branchés, nos événements arrivent 👀';
           eventsList.appendChild(empty);
           return;
         }
@@ -140,11 +140,11 @@
       desc: "Le département Ressources humaines accompagne les membres, gère les recrutements et veille au bon esprit d'équipe au sein du club."
     },
     media: {
-      title: 'Média',
+      title: 'Média et communication',
       label: 'MÉDIA',
       resp: 'Nait Mohamed Amani',
       photo: 'photos/media.jpg',
-      desc: "Le département Média réalise les photos, vidéos et publications du club et met en valeur nos événements sur nos réseaux sociaux."
+      desc: "Le département Média et communication réalise les photos, vidéos et publications du club et met en valeur nos événements sur nos réseaux sociaux."
     },
     formation: {
       title: 'Formation',
@@ -364,6 +364,89 @@
       peek.style.removeProperty('--py');
     });
   });
+
+  /* ---------- Bureau : la séquence d'entrée ----------
+     Reprise du fichier « Le bureau » : chaque membre arrive en tourbillon
+     depuis l'extérieur, les rayons se dessinent depuis le cœur, le périmètre
+     se referme, une comète en fait le tour puis l'onde de choc part du centre.
+     La scène se lance quand elle entre à l'écran et se rejoue depuis le
+     bouton « ↻ Rejouer l'entrée » ; la souris incline légèrement le plateau. */
+  var bureauRing = document.querySelector('.bureau-ring');
+  if (bureauRing) {
+    var bReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var bFin = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    var bSecousse = 0;
+    var bJouee = false;
+
+    function bTaille() {           /* largeur de la scène = distance d'arrivée */
+      bureauRing.style.setProperty('--S', bureauRing.offsetWidth + 'px');
+    }
+    bTaille();
+    window.addEventListener('resize', bTaille);
+
+    function bJouer() {
+      bureauRing.classList.remove('play', 'shake');
+      void bureauRing.offsetWidth;              /* force le redémarrage */
+      bureauRing.classList.add('play');
+      /* le contenu reste visible même si l'apparition au défilement tarde */
+      Array.prototype.forEach.call(bureauRing.querySelectorAll('.member-card'), function (c) {
+        c.classList.add('visible');
+      });
+      window.clearTimeout(bSecousse);
+      if (!bReduced) {
+        bSecousse = window.setTimeout(function () { bureauRing.classList.add('shake'); }, 3800);
+      }
+    }
+
+    if ('IntersectionObserver' in window) {
+      var bIo = new IntersectionObserver(function (entrees) {
+        entrees.forEach(function (e) {
+          if (e.isIntersecting && !bJouee) { bJouee = true; bJouer(); bIo.disconnect(); }
+        });
+      }, { threshold: 0.2 });
+      bIo.observe(bureauRing);
+    } else {
+      bJouer();
+    }
+
+    var bRejouer = document.getElementById('bureauReplay');
+    if (bRejouer) bRejouer.addEventListener('click', bJouer);
+
+    /* Souris seulement : rayon éclairé sous le membre survolé + inclinaison 3D */
+    var bRayons = bureauRing.querySelectorAll('.bureau-spoke');
+    if (bFin && bRayons.length) {
+      Array.prototype.forEach.call(bureauRing.querySelectorAll('.member-card'), function (carte, i) {
+        var rayon = bRayons[i];
+        if (!rayon) return;
+        carte.addEventListener('pointerenter', function () { rayon.classList.add('hot'); });
+        carte.addEventListener('pointerleave', function () { rayon.classList.remove('hot'); });
+      });
+
+      var bTx = 0, bTy = 0, bCx = 0, bCy = 0, bRaf = 0;
+      var bBoucle = function () {
+        bCx += (bTx - bCx) * 0.08;
+        bCy += (bTy - bCy) * 0.08;
+        bureauRing.style.setProperty('--tx', bCx.toFixed(2) + 'deg');
+        bureauRing.style.setProperty('--ty', bCy.toFixed(2) + 'deg');
+        bRaf = (Math.abs(bTx - bCx) + Math.abs(bTy - bCy) > 0.02) ? requestAnimationFrame(bBoucle) : 0;
+      };
+      bureauRing.addEventListener('pointermove', function (e) {
+        var r = bureauRing.getBoundingClientRect();
+        var w = bureauRing.offsetWidth, h = bureauRing.offsetHeight;
+        if (!w || !h) return;
+        /* centre visuel (stable sous rotation) + dimensions de mise en page */
+        var px = (e.clientX - (r.left + r.width / 2)) / w + 0.5;
+        var py = (e.clientY - (r.top + r.height / 2)) / h + 0.5;
+        bTx = (py - 0.5) * -6;
+        bTy = (px - 0.5) * 9;
+        if (!bRaf) bRaf = requestAnimationFrame(bBoucle);
+      });
+      bureauRing.addEventListener('pointerleave', function () {
+        bTx = 0; bTy = 0;
+        if (!bRaf) bRaf = requestAnimationFrame(bBoucle);
+      });
+    }
+  }
 
   var overlay = document.getElementById('deptOverlay');
   if (overlay) {

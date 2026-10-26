@@ -296,6 +296,9 @@ main { position: relative; }
 }
 
 /* ---------- Membres ---------- */
+/* L'éclair de l'onde de choc déborde largement de la scène : on le coupe
+   aux bords de la section (le bloom reste libre sur les côtés). */
+.members { overflow-x: clip; }
 .members-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
@@ -1343,30 +1346,95 @@ button:focus-visible {
    HEPTAGONE DU BUREAU + ANIMATIONS GLOBALES
    ============================================================ */
 
-/* ---------- Bureau : 7 responsables disposés en heptagone ---------- */
+/* ---------- Bureau : 7 responsables disposés en heptagone ----------
+   La scène reprend les animations du fichier « Le bureau » : arrivée de
+   chaque membre depuis l'extérieur, rayons tirés du cœur, périmètre qui se
+   referme, comète en orbite, onde de choc — et l'atome qui tourne au centre.
+   L'état de base EST l'état final : sans JavaScript, tout reste visible. */
 .bureau-ring {
   position: relative;
   width: min(940px, 100%);
   margin: 20px auto 0;
   aspect-ratio: 1;
+  --S: min(940px, 100%);        /* largeur de la scène (rafraîchie en JS) */
+  --tx: 0deg;                   /* inclinaison 3D suivant la souris */
+  --ty: 0deg;
 }
+/* L'inclinaison vit dans transform : elle remplace le décalage « reveal »
+   de la scène (l'apparition reste gérée par l'opacité). */
+.bureau-ring.reveal,
+.bureau-ring.reveal.visible {
+  transform: perspective(1400px) rotateX(var(--tx)) rotateY(var(--ty));
+  transition: opacity .7s ease;
+}
+/* Secousse au moment de l'onde de choc : la propriété « translate » se
+   compose avec l'inclinaison au lieu de la remplacer. */
+.bureau-ring.shake { animation: bureauShake .7s linear both; }
+@keyframes bureauShake {
+  0%, 100% { translate: 0 0; }
+  15%      { translate: 6px -4px; }
+  30%      { translate: -5px 3px; }
+  45%      { translate: 4px 4px; }
+  60%      { translate: -3px -2px; }
+  80%      { translate: 2px 1px; }
+}
+
 .bureau-lines {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  overflow: visible;
   pointer-events: none;
 }
-.bureau-lines polygon {
-  fill: rgba(74, 123, 224, .05);
-  stroke: rgba(27, 35, 112, .3);
-  stroke-width: 1.5;
-  stroke-dasharray: 7 8;
-  vector-effect: non-scaling-stroke;
-  animation: ringDash 22s linear infinite;
+/* Rayons : dessinés depuis le cœur vers chaque membre */
+.bureau-spoke {
+  stroke: rgba(27, 35, 112, .35);
+  stroke-width: .2;
+  fill: none;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  opacity: .4;
+  transition: stroke .25s, stroke-width .25s, opacity .25s;
 }
-@keyframes ringDash { to { stroke-dashoffset: -30; } }
+.bureau-spoke.hot {
+  stroke: var(--blue-light);
+  stroke-width: .42;
+  opacity: 1;
+}
+/* Périmètre (double trait) + comète qui en fait le tour */
+.bureau-perim {
+  stroke: rgba(27, 35, 112, .4);
+  stroke-width: .35;
+  fill: none;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.bureau-perim-glow {
+  stroke: rgba(74, 123, 224, .5);
+  stroke-width: .14;
+  fill: none;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.bureau-comet {
+  stroke: var(--blue-light);
+  stroke-width: .5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: .055 .945;
+  stroke-dashoffset: 0;
+  opacity: 0;
+}
+@keyframes bureauDraw   { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes bureauOrbit  { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -1; } }
+@keyframes bureauShow   { to { opacity: 1; } }
+@keyframes bureauSpoke  { from { opacity: 0; stroke-dashoffset: 1; } to { opacity: .4; stroke-dashoffset: 0; } }
 
+/* ---------- Cœur : l'atome du club (orbites + électrons) autour du logo ---------- */
 .bureau-center {
   position: absolute;
   left: 50%;
@@ -1374,14 +1442,54 @@ button:focus-visible {
   transform: translate(-50%, -50%);
   display: grid;
   justify-items: center;
-  gap: 8px;
+  gap: 6px;
   text-align: center;
   pointer-events: none;
 }
-.bureau-logo {
-  width: 96px;
-  height: 96px;
+.bureau-atom {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(118px, 17%, 164px);
+  aspect-ratio: 1;
   animation: bureauFloat 5s ease-in-out infinite;
+}
+/* Cœur lumineux qui pulse, derrière le logo */
+.bureau-atom::before {
+  content: "";
+  position: absolute;
+  inset: 19%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, .96) 0%, rgba(74, 123, 224, .6) 52%, rgba(74, 123, 224, 0) 76%);
+  animation: atomPulse 2.4s ease-in-out infinite;
+}
+.bureau-orbits {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.atom-orbits {
+  transform-origin: 50px 50px;
+  animation: atomSpin 14s linear infinite;
+}
+@keyframes atomSpin  { to { transform: rotate(360deg); } }
+@keyframes atomPulse { 50% { transform: scale(1.25); } }
+.bureau-logo {
+  position: relative;
+  z-index: 1;
+  width: 52%;
+  height: 52%;
+}
+.bureau-center .bureau-brand {
+  font-family: "Poppins", "Segoe UI", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: .78rem;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--navy);
+  padding-left: .26em;          /* compense l'espacement de la dernière lettre */
 }
 .bureau-center span {
   font-size: .72rem;
@@ -1395,15 +1503,50 @@ button:focus-visible {
   50%      { transform: translateY(-9px); }
 }
 
-/* Carte positionnée sur un sommet : --x / --y viennent du HTML */
+/* ---------- Onde de choc + éclair au moment de la fermeture ---------- */
+.bureau-flash {
+  position: absolute;
+  inset: -18%;
+  background: radial-gradient(closest-side, rgba(74, 123, 224, .4), rgba(74, 123, 224, .12) 45%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+}
+.bureau-shock {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border: 2px solid rgba(74, 123, 224, .9);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+.bureau-shock.b { border-color: rgba(27, 35, 112, .7); }
+@keyframes bureauWave {
+  0%   { opacity: .95; transform: scale(.4); }
+  100% { opacity: 0;   transform: scale(13); }
+}
+@keyframes bureauFlash {
+  0%   { opacity: 0; }
+  12%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Carte positionnée sur un sommet : --x / --y viennent du HTML.
+   Le centrage (--cx/--cy) vit dans la transformation, puisque l'animation
+   d'arrivée prend le dessus sur transform pendant toute la séquence. */
 .member-card.at-vertex {
   position: absolute;
   left: calc(50% + var(--x));
   top: calc(50% + var(--y));
   width: 176px;
   padding: 22px 14px;
+  --cx: -50%;
+  --cy: -50%;
   --ry: 0px;
-  transform: translate(-50%, -50%) translateY(var(--ry));
+  transform: translate(var(--cx), var(--cy)) translateY(var(--ry));
   transition: opacity .7s ease, transform .5s cubic-bezier(.22, 1, .36, 1), box-shadow .35s;
 }
 .member-card.at-vertex.reveal { --ry: 26px; }
@@ -1411,20 +1554,136 @@ button:focus-visible {
 .member-card.at-vertex:hover,
 .member-card.at-vertex.reveal.visible:hover {
   --ry: -9px;
+  z-index: 6;
   box-shadow: var(--shadow-hover);
 }
 .member-card.at-vertex .member-photo {
   max-width: 136px;
   clip-path: polygon(50% 0%, 89.1% 18.8%, 98.7% 61.1%, 71.7% 95.1%, 28.3% 95.1%, 1.3% 61.1%, 10.9% 18.8%);
 }
+/* Le portrait file l'atome : léger halo bleu, plus vif au survol */
+.member-card.at-vertex:hover .member-photo {
+  filter: drop-shadow(0 0 10px rgba(74, 123, 224, .55));
+}
 /* Média : le recadrage portrait (scale 2) doit aussi s'appliquer au survol */
 .member-card:hover .member-photo img[src$="media.jpg"] { transform: scale(2.12); }
 .member-card.at-vertex .member-name { font-size: .97rem; line-height: 1.3; }
 .member-card.at-vertex .member-role { font-size: .8rem; }
 
-/* Photos : léger zoom au survol de la carte */
+/* Photos : léger zoom au survol + flottement continu (comme .pic du fichier) */
 .member-photo img { transition: transform .55s cubic-bezier(.22, 1, .36, 1); }
 .member-card:hover .member-photo img { transform: scale(1.07); }
+.member-card.at-vertex .member-photo {
+  animation: memberFloat 5.5s ease-in-out var(--fd, 0s) infinite alternate;
+}
+@keyframes memberFloat {
+  from { transform: translateY(-3%); }
+  to   { transform: translateY(3%); }
+}
+
+/* ---------- Séquence d'entrée : lancée au défilement, rejouable ---------- */
+@keyframes bureauSlam {
+  0% {
+    opacity: 0;
+    transform: translate(var(--cx), var(--cy)) translate(var(--fx, 0px), var(--fy, 0px)) rotate(var(--fr, 0deg)) scale(.18);
+    filter: blur(18px) brightness(2.4);
+  }
+  50%  { opacity: 1; }
+  72% {
+    transform: translate(var(--cx), var(--cy)) rotate(0deg) scale(1.16);
+    filter: blur(0) brightness(1.7);
+  }
+  86%  { transform: translate(var(--cx), var(--cy)) scale(.96); filter: none; }
+  100% { opacity: 1; transform: translate(var(--cx), var(--cy)); filter: none; }
+}
+@keyframes bureauBump {
+  40% { transform: translate(var(--cx), var(--cy)) scale(1.1); }
+}
+@keyframes bureauLabel {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes bureauIgnite {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(-200deg); filter: brightness(3) blur(8px); }
+  60%  { opacity: 1; filter: brightness(1.8) blur(0); }
+  100% { opacity: 1; transform: translate(-50%, -50%); filter: none; }
+}
+.bureau-ring.play .member-card.at-vertex {
+  animation: bureauSlam .95s cubic-bezier(.55, 0, .25, 1) var(--d, .9s) backwards,
+             bureauBump .6s ease-out 3.8s;
+}
+.bureau-ring.play .member-name,
+.bureau-ring.play .member-role {
+  animation: bureauLabel .6s ease-out 3.9s backwards;
+}
+.bureau-ring.play .bureau-center { animation: bureauIgnite 1.1s cubic-bezier(.2, 1.3, .3, 1) .1s backwards; }
+.bureau-ring.play .bureau-spoke {
+  animation: bureauSpoke .75s cubic-bezier(.3, .6, .2, 1) calc(.55s + var(--i) * .06s) backwards;
+}
+.bureau-ring.play .bureau-perim,
+.bureau-ring.play .bureau-perim-glow {
+  animation: bureauDraw 1s cubic-bezier(.5, 0, .2, 1) 2.9s backwards;
+}
+.bureau-ring.play .bureau-comet {
+  animation: bureauShow 0s 4s forwards, bureauOrbit 5.5s linear 4s infinite;
+}
+.bureau-ring.play .bureau-shock { animation: bureauWave 1.5s cubic-bezier(.2, .7, .2, 1) 3.8s; }
+.bureau-ring.play .bureau-shock.b { animation-delay: 3.95s; }
+.bureau-ring.play .bureau-flash { animation: bureauFlash 1.2s ease-out 3.8s; }
+
+/* ---------- Barre sous la scène : indice + rejeu ---------- */
+.bureau-ui {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+.bureau-hint {
+  font-size: .82rem;
+  color: var(--text);
+}
+.bureau-replay {
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--navy);
+  background: rgba(255, 255, 255, .9);
+  border: 1px solid rgba(27, 35, 112, .18);
+  border-radius: 999px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s, transform .2s;
+}
+.bureau-replay:hover {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* « Moins d'animations » : la scène affiche directement son état final.
+   (Le reste du site garde ses animations ; c'est le seul écran entièrement
+   composé d'une séquence, comme dans le fichier d'origine.) */
+@media (prefers-reduced-motion: reduce) {
+  .bureau-ring.play .member-card.at-vertex,
+  .bureau-ring.play .member-name,
+  .bureau-ring.play .member-role,
+  .bureau-ring.play .bureau-center,
+  .bureau-ring.play .bureau-spoke,
+  .bureau-ring.play .bureau-perim,
+  .bureau-ring.play .bureau-perim-glow,
+  .bureau-ring.play .bureau-comet,
+  .bureau-ring.play .bureau-shock,
+  .bureau-ring.play .bureau-flash,
+  .bureau-ring.shake,
+  .member-card.at-vertex .member-photo,
+  .bureau-atom,
+  .bureau-atom::before,
+  .atom-orbits { animation: none !important; }
+  .bureau-atom .atom-el { display: none; }   /* électrons (animation SVG) */
+}
 
 /* ---------- Boutons : éclat lumineux au survol, enfoncement au clic ---------- */
 .btn {
@@ -1449,7 +1708,7 @@ button:focus-visible {
 .section .btn-light { border-color: #fff; }
 .section .btn-light:hover { border-color: var(--bg); }
 
-/* ---------- Boutons départements (RE, RH, Média, Formation) ---------- */
+/* ---------- Boutons départements (RE, RH, Média et communication, Formation) ---------- */
 /* (règles réunies plus haut, section « Nos départements ») */
 
 /* ---------- Cartes : ressort au survol ---------- */
@@ -1522,6 +1781,8 @@ button:focus-visible {
     position: static;
     width: auto;
     padding: 24px 14px;
+    --cx: 0px;
+    --cy: 0px;
     transform: translateY(var(--ry));
   }
   .member-card.at-vertex .member-photo { max-width: 150px; }
@@ -1573,6 +1834,9 @@ button:focus-visible {
   .value-card:hover .value-icon,
   .event-card:hover .event-date,
   .member-card:hover .member-photo img,
+  .member-card.at-vertex:hover .member-photo,
   .dept-card:hover .dept-icon { transform: none; }
+  /* Le halo bleu du portrait ne reste pas « collé » après un tap */
+  .member-card.at-vertex:hover .member-photo { filter: none; }
   .btn:hover::after { animation: none; }
 }

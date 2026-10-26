@@ -12,7 +12,7 @@ discrètement « ? » (carte) ou le logo du club (panneau) — aucun bug visuel.
 | `photos/re.jpg` | Carte **RE** + panneau département RE |
 | `photos/rh.jpg` | Carte **RH** + panneau département RH |
 | `photos/formation.jpg` | Carte **Formation** + panneau département Formation |
-| `photos/media.jpg` | Carte **Média** + panneau département Média |
+| `photos/media.jpg` | Carte **Média et communication** + panneau du département |
 
 Conseils :
 
