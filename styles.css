@@ -387,200 +387,246 @@ main { position: relative; }
   color: var(--text);
   margin-top: 3px;
 }
-.dept-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
-  gap: 22px;
-}
-/* Cartes départements : style « bannière » — liseré dégradé en haut,
-   icône en badge, libellé centré, pastille « Découvrir » */
-.dept-card {
-  position: relative;
+/* ---------- Départements : bandes dépliables ----------
+   Quatre bandes inclinées ; la bande ouverte (survol au pointeur,
+   tap au doigt) révèle la mission et le portrait du responsable,
+   éclairé par la lampe du curseur. Adapté du fichier « Départements »
+   au thème clair du site (marine #1b2370, bleu #4a7be0). */
+.dept-bands {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  width: 100%;
-  font: inherit;
-  color: var(--navy);
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
-  padding: 34px 22px 28px;
-  border: 1px solid rgba(27, 35, 112, .07);
-  border-radius: 24px;
+  height: 520px;
+  border-radius: 22px;
   overflow: hidden;
-  background:
-    radial-gradient(120% 90% at 50% -10%, rgba(74, 123, 224, .16), transparent 60%),
-    linear-gradient(180deg, #ffffff 0%, #f6f8ff 100%);
-  box-shadow: var(--shadow);
-  transition: transform .35s cubic-bezier(.2, .9, .3, 1.25), box-shadow .35s, border-color .3s;
+  box-shadow: 0 22px 55px rgba(27, 35, 112, .22);
+  background: #fff;
+  isolation: isolate;
 }
-/* Liseré dégradé en haut (bannière) qui s'étend au survol */
-.dept-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
-  background: linear-gradient(90deg, var(--navy), var(--blue-light));
-  transform: scaleX(.35);
-  transform-origin: center;
-  transition: transform .4s ease;
+.dept-band {
+  --c: var(--navy);
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transform: skewX(-7deg);
+  margin: 0 -14px;
+  background: var(--c);
+  border-right: 2px solid #fff;
+  outline: none;
+  transition: flex .7s cubic-bezier(.2, .9, .2, 1), background .5s;
 }
-/* Halo dégradé au survol */
-.dept-card::after {
+.dept-band:first-child { margin-left: -28px; }
+.dept-band:last-child { margin-right: -28px; border-right: 0; }
+.dept-band.on { flex: 4.4; background: #eef0ff; }
+.dept-band:focus-visible { box-shadow: inset 0 0 0 3px rgba(74, 123, 224, .9); }
+/* Halo doux suivant le curseur dans la bande ouverte */
+.dept-band::after {
   content: "";
   position: absolute;
   inset: 0;
+  background: radial-gradient(circle 220px at var(--gx, 50%) var(--gy, 50%), rgba(60, 80, 230, .18), transparent);
   opacity: 0;
-  background: linear-gradient(140deg, rgba(74, 123, 224, .14), rgba(27, 35, 112, .05) 55%, transparent);
-  transition: opacity .4s ease;
+  transition: opacity .3s;
   pointer-events: none;
 }
-.dept-card:hover,
-.dept-card:focus-visible {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-hover);
-  border-color: rgba(27, 35, 112, .16);
+.dept-band.on:hover::after { opacity: 1; }
+.dept-in {
+  position: absolute;
+  inset: 0;
+  transform: skewX(7deg) scale(1.12);
+  padding: 28px 40px;
 }
-.dept-card:hover::before,
-.dept-card:focus-visible::before { transform: scaleX(1); }
-.dept-card:hover::after { opacity: 1; }
-.dept-card:active { transform: translateY(-3px) scale(.99); }
-.dept-card > span { position: relative; z-index: 1; }
-.dept-icon {
-  display: grid;
-  place-items: center;
-  width: 62px;
-  height: 62px;
-  margin-bottom: 12px;
-  border-radius: 20px;
-  background: linear-gradient(140deg, var(--navy), var(--blue));
-  box-shadow: 0 10px 24px rgba(27, 35, 112, .28);
-  transition: transform .45s cubic-bezier(.34, 1.56, .64, 1);
+/* Grande lettre en contour, décalée à droite quand la bande est ouverte */
+.dept-big {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font: 900 min(26vw, 230px)/1 "Poppins", "Segoe UI", system-ui, sans-serif;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(255, 255, 255, .55);
+  transform: translate(calc(-50% + var(--px, 0px)), calc(-50% + var(--py, 0px)));
+  transition: left .6s, opacity .6s, -webkit-text-stroke-color .6s;
+  opacity: .5;
+  pointer-events: none;
+  white-space: nowrap;
 }
-.dept-icon svg {
-  width: 30px;
-  height: 30px;
-  fill: none;
-  stroke: #fff;
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.dept-band.on .dept-big {
+  left: 68%;
+  opacity: 1;
+  -webkit-text-stroke-color: rgba(27, 35, 112, .14);
 }
-.dept-card:hover .dept-icon { transform: translateY(-3px) rotate(-6deg) scale(1.06); }
-.dept-name {
-  display: block;
-  font-family: "Poppins", "Segoe UI", system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 1.25rem;
-  letter-spacing: .02em;
+/* Titre vertical sur la bande repliée */
+.dept-vt {
+  position: absolute;
+  left: 50%;
+  bottom: 30px;
+  writing-mode: vertical-rl;
+  transform: translateX(-50%) rotate(180deg);
+  font: 600 .82rem "Poppins", "Segoe UI", system-ui, sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #fff;
+  transition: opacity .4s;
+  white-space: nowrap;
+}
+.dept-band.on .dept-vt { opacity: 0; }
+/* Contenu de la bande ouverte */
+.dept-txt {
+  position: absolute;
+  left: 40px;
+  top: 50%;
+  width: 44%;
   color: var(--navy);
-  margin-bottom: 4px;
-  transition: transform .3s ease, color .3s ease;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity .5s;
+  pointer-events: none;
 }
-.dept-sub {
+.dept-band.on .dept-txt { opacity: 1; transition-delay: .3s; }
+.dept-tag {
   display: block;
-  font-size: .9rem;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  opacity: .65;
+}
+.dept-txt h4 {
+  font-size: clamp(1.35rem, 2.6vw, 1.95rem);
+  line-height: 1.08;
+  margin: 8px 0 12px;
+}
+.dept-txt p {
+  font-size: .92rem;
+  line-height: 1.5;
   color: var(--text);
 }
-.dept-more {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 16px;
-  padding: .45em 1.15em;
-  border-radius: 999px;
-  border: 1px solid rgba(27, 35, 112, .16);
-  background: rgba(255, 255, 255, .85);
-  font-size: .8rem;
-  font-weight: 600;
-  color: var(--navy);
-  transition: background .3s, color .3s, border-color .3s;
-}
-.dept-arrow { display: inline-block; transition: transform .3s ease; }
-.dept-card:hover .dept-more {
+/* Pastille « responsable · voir le profil » → ouvre le panneau existant */
+.dept-who {
+  margin-top: 20px;
+  display: inline-block;
   background: var(--navy);
-  border-color: var(--navy);
   color: #fff;
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 999px;
+  font: 600 .8rem "Poppins", "Segoe UI", system-ui, sans-serif;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background .2s, transform .15s;
+  max-width: 100%;
 }
-.dept-card:hover .dept-name { color: var(--blue); }
-.dept-card:hover .dept-more .dept-arrow { transform: translateX(4px); }
-.dept-hint {
-  text-align: center;
-  font-size: .95rem;
-  margin: -8px 0 26px;
-}
-
-/* ---------- Lampe au curseur : la photo du responsable n'apparaît
-   que dans le cercle suivi par le pointeur (au survol, sans cliquer) ---------- */
-@property --r { syntax: '<length>'; inherits: false; initial-value: 0px; }
-.dept-card > .dept-peek {
+.dept-who:hover { background: var(--blue); }
+.dept-who:active { transform: scale(.97); }
+/* Portrait du responsable : base en duotone + révélation en couleur
+   dans le cercle suivi par le curseur (lampe) */
+.dept-ph {
   position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: block;
-  overflow: hidden;
-  border-radius: inherit;
-  pointer-events: none;
+  right: 6%;
+  bottom: 0;
+  width: 44%;
+  height: 90%;
   opacity: 0;
-  --mx: 50%;
-  --my: 50%;
-  --r: 0px;
-  background: linear-gradient(160deg, var(--navy), var(--blue));
-  -webkit-mask-image: radial-gradient(circle var(--r) at var(--mx) var(--my), #000 62%, rgba(0, 0, 0, 0) 100%);
-          mask-image: radial-gradient(circle var(--r) at var(--mx) var(--my), #000 62%, rgba(0, 0, 0, 0) 100%);
-  transition: --r .4s cubic-bezier(.2, .8, .2, 1), opacity .25s ease;
+  transform: translateY(36px);
+  transition: opacity .7s .15s, transform .7s .15s;
+  cursor: none;
+  touch-action: pan-y;
 }
-.dept-card:hover > .dept-peek,
-.dept-card:focus-visible > .dept-peek { opacity: 1; --r: 105px; }
-.dept-peek img {
+.dept-band.on .dept-ph { opacity: 1; transform: none; }
+.dept-ph img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 18%;
-  transform: scale(1.07) translate(var(--px, 0px), var(--py, 0px));
-  transition: transform .3s ease-out;
+  object-position: top;
+  border-radius: 130px 130px 0 0;
+  pointer-events: none;
 }
-/* Voile sombre en bas : la légende reste lisible sur n'importe quelle photo */
-.dept-peek::after {
+.dept-ph img.a { filter: url(#duo); }
+.dept-ph .b {
+  -webkit-mask-image: radial-gradient(circle 95px at var(--mx, -999px) var(--my, -999px), #000 55%, transparent 100%);
+          mask-image: radial-gradient(circle 95px at var(--mx, -999px) var(--my, -999px), #000 55%, transparent 100%);
+}
+/* Repli sans photo : pastille aux initiales */
+.dept-ini {
+  display: none;
+  width: 62%;
+  aspect-ratio: 1;
+  margin: 14% auto 0;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #fff;
+  align-items: center;
+  justify-content: center;
+  font: 900 2.6rem "Poppins", "Segoe UI", system-ui, sans-serif;
+}
+.dept-ph.noimg img { display: none; }
+.dept-ph.noimg .dept-ini { display: flex; }
+/* Anneau lumineux autour du cercle de la lampe */
+.dept-ring {
+  position: absolute;
+  left: var(--mx, -999px);
+  top: var(--my, -999px);
+  width: 172px;
+  height: 172px;
+  margin: -86px 0 0 -86px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, .9);
+  box-shadow: 0 0 26px rgba(90, 120, 255, .75), inset 0 0 26px rgba(255, 255, 255, .25);
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+  z-index: 3;
+}
+.dept-ph:hover .dept-ring { opacity: 1; }
+/* Éclat qui balaie le portrait à l'ouverture de la bande */
+.dept-ph::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(10, 14, 48, .9), rgba(10, 14, 48, 0) 58%);
+  border-radius: 130px 130px 0 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .75) 48%, rgba(90, 120, 255, .5) 54%, transparent 64%) -150% 0/250% 100% no-repeat;
 }
-.dept-peek-cap {
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: 16px;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-align: left;
-  color: #fff;
+.dept-band.on .dept-ph::before { animation: deptShim 1.5s .5s both; }
+@keyframes deptShim { to { background-position: 150% 0; } }
+/* Sur le tactile : l'anneau reste visible et le portrait va d'office */
+@media (pointer: coarse) {
+  .dept-ring { opacity: .9; }
+  .dept-ph { cursor: auto; }
 }
-.dept-peek-role {
-  font-size: .68rem;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: #a9b6ff;
+.dept-hint {
+  text-align: center;
+  font-size: .95rem;
+  margin: -8px 0 26px;
 }
-.dept-peek-name {
-  font-family: "Poppins", "Segoe UI", system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 1.02rem;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
+@media (max-width: 760px) {
+  .dept-bands { height: 560px; border-radius: 16px; }
+  .dept-band {
+    transform: skewX(-3deg);
+    margin: 0 -4px;
+    flex: 0 0 50px;
+  }
+  .dept-band:first-child { margin-left: -12px; }
+  .dept-band:last-child { margin-right: -12px; }
+  .dept-band.on { flex: 1 1 0; }
+  .dept-in { transform: skewX(3deg); padding: 0; }
+  .dept-big { font-size: 74px; top: 44%; }
+  .dept-band.on .dept-big { left: 60%; top: 76%; font-size: 118px; }
+  .dept-vt { font-size: .68rem; bottom: 22px; letter-spacing: .1em; }
+  .dept-txt { left: 22px; top: 26px; width: calc(100% - 40px); transform: none; }
+  .dept-tag { font-size: .6rem; letter-spacing: .14em; }
+  .dept-txt h4 { font-size: 1.2rem; margin: 6px 0 8px; }
+  .dept-txt p { font-size: .78rem; line-height: 1.45; }
+  .dept-who { min-height: 44px; margin-top: 12px; padding: 10px 14px; font-size: .74rem; line-height: 1.25; text-align: left; border-radius: 14px; }
+  .dept-ph { width: 74%; height: 42%; right: 13%; cursor: auto; }
+  .dept-ph img, .dept-ph::before { border-radius: 80px 80px 0 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .dept-card > .dept-peek { transition: none; }
-  .dept-peek img { transition: none; transform: scale(1.07); }
+  .dept-band, .dept-txt, .dept-big, .dept-vt, .dept-ph, .dept-ring { transition: none; }
+  .dept-band.on .dept-ph::before { animation: none; }
+  .dept-ph .b { display: none; }   /* la lampe ne sert plus : la base duotone suffit */
 }
 
 /* ---------- Événements & activités ---------- */
@@ -1835,7 +1881,7 @@ button:focus-visible {
   .event-card:hover .event-date,
   .member-card:hover .member-photo img,
   .member-card.at-vertex:hover .member-photo,
-  .dept-card:hover .dept-icon { transform: none; }
+  .dept-who { transform: none; }
   /* Le halo bleu du portrait ne reste pas « collé » après un tap */
   .member-card.at-vertex:hover .member-photo { filter: none; }
   .btn:hover::after { animation: none; }

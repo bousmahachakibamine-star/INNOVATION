@@ -342,28 +342,129 @@
     setRubans(true);
   }
 
-  /* ---------- Cartes départements : la lampe du curseur ----------
-     Au survol (sans cliquer), la photo du responsable n'apparaît que dans
-     le cercle suivi par le pointeur ; le rayon lui-même est géré en CSS. */
-  document.querySelectorAll('.dept-card').forEach(function (card) {
-    var peek = card.querySelector('.dept-peek');
-    if (!peek) return;
-    card.addEventListener('pointermove', function (e) {
-      if (e.pointerType === 'touch') return;   /* au doigt : pas de survol */
-      var r = card.getBoundingClientRect();
-      if (!r.width || !r.height) return;
-      var x = e.clientX - r.left, y = e.clientY - r.top;
-      peek.style.setProperty('--mx', x.toFixed(1) + 'px');
-      peek.style.setProperty('--my', y.toFixed(1) + 'px');
-      /* léger décalage de la photo : effet de profondeur */
-      peek.style.setProperty('--px', (((x / r.width) - .5) * -14).toFixed(1) + 'px');
-      peek.style.setProperty('--py', (((y / r.height) - .5) * -10).toFixed(1) + 'px');
+  /* ---------- Départements : bandes dépliables + lampe du portrait ----------
+     La bande survolée (pointeur fin) ou tapée (doigt) s'ouvre ; dans la
+     bande ouverte, la photo du responsable n'apparaît en couleur que dans
+     le cercle suivi par le curseur (la base reste en duotone). La pastille
+     « voir le profil » ouvre le panneau détaillé existant. */
+  var deptSweeps = [];              /* animations tactiles (lampe automatique) */
+  var deptBandsBox = document.querySelector('.dept-bands');
+  if (deptBandsBox) {
+    var deptBands = Array.prototype.slice.call(deptBandsBox.querySelectorAll('.dept-band'));
+    var deptTactile = window.matchMedia('(pointer: coarse)').matches;
+    var deptReduit = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function deptOuvrir(bande) {
+      deptBands.forEach(function (b) {
+        var on = b === bande;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-expanded', on ? 'true' : 'false');
+      });
+    }
+
+    deptBands.forEach(function (bande) {
+      var ph = bande.querySelector('.dept-ph');
+      var imgA = bande.querySelector('.dept-ph img.a');
+      var imgB = bande.querySelector('.dept-ph img.b');
+
+      /* Sans photo : on affiche la pastille aux initiales */
+      function deptSansImg() { if (ph) ph.classList.add('noimg'); }
+      if (imgA) {
+        imgA.addEventListener('error', deptSansImg);
+        if (imgA.complete && imgA.naturalWidth === 0) deptSansImg();
+      }
+      if (imgB) {
+        imgB.addEventListener('error', function () { imgB.style.display = 'none'; });
+      }
+
+      if (deptTactile) {
+        bande.addEventListener('click', function (e) {
+          if (e.target.closest('.dept-who')) return;   /* le bouton gère son clic */
+          deptOuvrir(bande);
+        });
+      } else {
+        bande.addEventListener('mouseenter', function () { deptOuvrir(bande); });
+      }
+      bande.addEventListener('focus', function () { deptOuvrir(bande); });
+      bande.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); deptOuvrir(bande); }
+      });
+
+      /* Lampe du curseur : cercle suivi + halo sur la bande + lettre en parallaxe */
+      bande.addEventListener('pointermove', function (e) {
+        if (e.pointerType === 'touch') return;
+        var r = bande.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        var x = e.clientX - r.left, y = e.clientY - r.top;
+        bande.style.setProperty('--gx', x.toFixed(1) + 'px');
+        bande.style.setProperty('--gy', y.toFixed(1) + 'px');
+        var big = bande.querySelector('.dept-big');
+        if (big) {
+          big.style.setProperty('--px', (((x / r.width) - .5) * -40).toFixed(1) + 'px');
+          big.style.setProperty('--py', (((y / r.height) - .5) * -40).toFixed(1) + 'px');
+        }
+        if (ph && bande.classList.contains('on')) {
+          var rp = ph.getBoundingClientRect();
+          if (rp.width && rp.height) {
+            ph.style.setProperty('--mx', (e.clientX - rp.left).toFixed(1) + 'px');
+            ph.style.setProperty('--my', (e.clientY - rp.top).toFixed(1) + 'px');
+          }
+        }
+      });
+      if (!deptTactile && ph) {
+        bande.addEventListener('pointerleave', function () {
+          ph.style.setProperty('--mx', '-999px');
+          ph.style.setProperty('--my', '-999px');
+        });
+      }
+
+      /* Balayage automatique de la lampe au doigt (portrait qui "respire") */
+      if (deptTactile && !deptReduit && ph) {
+        bande.addEventListener('pointermove', function () { ph._t = performance.now(); });
+        deptSweeps.push(function (t) {
+          if (!bande.classList.contains('on')) return;
+          if (!ph.clientWidth) return;
+          if (performance.now() - (ph._t || 0) < 1800) return;   /* le doigt vient de bouger */
+          ph.style.setProperty('--mx', (ph.clientWidth * (.5 + .3 * Math.sin(t / 900))).toFixed(1) + 'px');
+          ph.style.setProperty('--my', (ph.clientHeight * (.4 + .22 * Math.sin(t / 650 + 1))).toFixed(1) + 'px');
+        });
+      }
     });
-    card.addEventListener('pointerleave', function () {
-      peek.style.removeProperty('--px');
-      peek.style.removeProperty('--py');
-    });
-  });
+
+    /* Nom + photo modifiables depuis /admin (API KV) ; repli = valeurs du HTML */
+    fetch('/api/departements', { headers: { 'accept': 'application/json' } })
+      .then(function (rep) { if (!rep.ok) throw new Error('api'); return rep.json(); })
+      .then(function (d) {
+        if (!d || typeof d !== 'object') return;
+        Object.keys(d).forEach(function (k) {
+          var info = d[k] || {};
+          var bande = deptBandsBox.querySelector('.dept-band[data-dept="' + k + '"]');
+          if (!bande) return;
+          if (info.resp) {
+            DEPTS[k].resp = info.resp;
+            var qui = bande.querySelector('.dept-who');
+            if (qui) qui.textContent = info.resp + ' · voir le profil →';
+          }
+          if (info.photo) {
+            DEPTS[k].photo = info.photo;
+            Array.prototype.forEach.call(bande.querySelectorAll('.dept-ph img'), function (img) {
+              img.src = info.photo;
+            });
+            var phk = bande.querySelector('.dept-ph');
+            if (phk) phk.classList.remove('noimg');
+          }
+        });
+      })
+      .catch(function () { /* API absente : on garde les valeurs par défaut */ });
+
+    /* Boucle tactile : la lampe balaie le portrait quand la main est loin */
+    if (deptSweeps.length) {
+      (function deptTick(t) {
+        requestAnimationFrame(deptTick);
+        deptSweeps.forEach(function (f) { f(t); });
+      })(0);
+    }
+  }
 
   /* ---------- Bureau : la séquence d'entrée ----------
      Reprise du fichier « Le bureau » : chaque membre arrive en tourbillon
@@ -538,9 +639,10 @@
       });
     }
 
-    document.querySelectorAll('.dept-card').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        openDept(btn.getAttribute('data-dept'), btn);
+    document.querySelectorAll('.dept-who').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();                       /* ne referme pas la bande */
+        openDept(btn.getAttribute('data-dept-open'), btn);
       });
     });
     closeBtn.addEventListener('click', closeDept);
@@ -641,7 +743,7 @@
         return Math.max(0, Math.min(1, (top - vh * lead) / hs));
       }
       var bureau = f('.bureau-ring', 0.55); // lead 0.55 : la section occupe le milieu de l'écran
-      var dept = f('.dept-grid', 0.55);
+      var dept = f('.dept-bands', 0.55);
       var evt = f('#evenements', 0.55);
       var finEvt = f('#galerie', 0.55);     // fin des événements = arrivée de la galerie
       var finGal = f('#reseaux', 0.55);     // fin de la galerie = arrivée des réseaux
